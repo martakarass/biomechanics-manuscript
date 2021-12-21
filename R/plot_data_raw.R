@@ -41,10 +41,12 @@ table(datosindividualesKnee_Zswing2$carrera)
 datosindividualesKnee_Xstride2[, c(101, 102, 103)]
 
 # read force data (anonymized)
-forces_path <- file.path(here(), "data", "forces_anonym.csv")
-forces <- read_csv(forces_path)
-# head(forces)
-# dim(forces)
+# strength_path <- file.path(here(), "data", "strength_anonym.csv")
+# strength <- read_csv(strength_path)
+strength_path <- file.path(here(), "data", "strength_anonym.rds")
+strength <- readRDS(strength_path)
+# head(strength)
+# dim(strength)
 
 
 # ------------------------------------------------------------------------------
@@ -91,7 +93,7 @@ plot(fda8Y, main="HIT2 Post")
 # ------------------------------------------------------------------------------
 
 # FUNCTION TO PLOT STRENGHT INFORMATION
-grafico= function(x, nombres = forces$subj_idx, variable="Variable"){
+grafico= function(x, nombres = strength$subj_idx, variable="Variable"){
   x=apply(x,2, as.numeric)
   n= dim(x)[1]
   p= dim(x)[2]
@@ -114,16 +116,16 @@ grafico= function(x, nombres = forces$subj_idx, variable="Variable"){
 # HFStrength : Hip Flexion 
 # KFStrength : Knee Flexion 
 # KE Strength; Knee Extension 
-HABD=forces[,c(4,5,20,21)]
-HADD=forces[,c(6,7,22,23)]
-HER= forces[,c(8,9,24,25)]
-HIR= forces[,c(10,11,26,27)]
-HF=  forces[,c(12,13,28,29)]
-KE=  forces[,c(14,15,30,31)]
-KF=  forces[,c(16,17,32,33)]
-HE=  forces[,c(18,19,34,35)] 
+HABD=strength[,c(4,5,20,21)]
+HADD=strength[,c(6,7,22,23)]
+HER= strength[,c(8,9,24,25)]
+HIR= strength[,c(10,11,26,27)]
+HF=  strength[,c(12,13,28,29)]
+KE=  strength[,c(14,15,30,31)]
+KF=  strength[,c(16,17,32,33)]
+HE=  strength[,c(18,19,34,35)] 
 
-# x <- HABD; variable = "HABD"; nombres = forces$subj_idx
+# x <- HABD; variable = "HABD"; nombres = strength$subj_idx
 grafico(HABD, variable = "HABD")
 grafico(HADD, variable = "HADD")
 grafico(HER, variable = "HER")
@@ -220,8 +222,8 @@ legend("topleft", legend= c("16","17","18","19"),col=c("Red","Blue","Green", "Or
 # PLOT FUNCTIONAL OBSERVATONS, GROUPED, VER 2   --------------------------------
 # ------------------------------------------------------------------------------
 
-# get subject hash -- subject ID mapping from forces df
-forces_sub <- forces %>% select(subj_id, subj_idx)
+# get subject hash -- subject ID mapping from strength df
+strength_sub <- strength %>% select(subj_id, subj_idx)
 
 # prepare plot data 
 # add info about dimension (x,y,z) to each data set 
@@ -237,7 +239,7 @@ plt_df <- rbind(
 # define carrera levels
 carrera_sub_levels <- c("HT1 Post", "HT 2 Post")
 carrera_sub_labels <- c("1", "2")
-subj_idx_levels <- sort(unique(forces_sub$subj_idx))
+subj_idx_levels <- sort(unique(strength_sub$subj_idx))
 subj_idx_labels <- paste0("ID ", subj_idx_levels)
 
 # mutate, format to long 
@@ -246,7 +248,7 @@ plt_df_long <-
   filter(carrera %in% carrera_sub_levels) %>%
   mutate(carrera_fct = factor(carrera, levels = carrera_sub_levels, labels = carrera_sub_labels)) %>%
   separate(archivo, into = "subj_id", sep = "_", extra = "drop") %>%
-  left_join(forces_sub, by = "subj_id")  %>%
+  left_join(strength_sub, by = "subj_id")  %>%
   filter(!is.na(subj_idx)) %>%
   pivot_longer(cols = starts_with("V")) %>%
   mutate(

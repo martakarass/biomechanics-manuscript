@@ -3,6 +3,8 @@
 #' Script to anonymize forces data (original, non-anonymized file is stored locally). 
 #' Save anonymized data as separate file in the project directory (publicly available). 
 
+#' @TODO correct subj_id
+
 rm(list = ls())
 library(tidyverse)
 library(here)
@@ -33,13 +35,13 @@ names(fuerza)[c(1,2,3)] <- c("sex", "subj_id", "subj_idx")
 
 # use hash function to anonymize IDs 
 fuerza$subj_id <- sapply(fuerza$subj_id, digest, algo = 'xxhash32')
-head(fuerza)
+fuerza$subj_id
 
 # save to file 
 fuerza <- as_tibble(fuerza)
-fuerza_f_path <- file.path(here(), "data", "forces_anonym.csv")
-# saveRDS(fuerza, fuerza_f_path)
-fwrite(fuerza, fuerza_f_path)
+fuerza_f_path <- file.path(here(), "data", "strength_anonym.rds")
+saveRDS(fuerza, fuerza_f_path)
+# fwrite(fuerza, fuerza_f_path)
 
 message(paste0("Forces data anonymized and saved: ", fuerza_f_path))
 

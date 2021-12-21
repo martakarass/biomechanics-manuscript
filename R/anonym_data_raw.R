@@ -34,14 +34,16 @@ for (i in 1 : length(fnames)){ # i <- 1
   dat <- readRDS(f_orig_path)
   rm(f_orig_path)
   
+  archivo_vec <- dat$archivo
   # anonymize values in "archivo" column 
-  dat$archivo <- sapply(dat$archivo, function(x){
+  dat$archivo <- sapply(archivo_vec, function(x){
     x_initials_anonym <- digest(substr(x, 1, 2), algo = 'xxhash32') 
     paste0(x_initials_anonym, substr(x, 3, nchar(x)))
   })
-  
-  # add subject id
-  dat$subj_id <- substr(x, 1, 2)
+  # anonymize values in subj_id 
+  dat$subj_id <- sapply(archivo_vec, function(x){
+    digest(substr(x, 1, 2), algo = 'xxhash32') 
+  })
   
   # save anonymized file 
   f_anonym_name <- paste0(file_path_sans_ext(f_orig_name), "_anonym.", tolower(file_ext(f_orig_name)))

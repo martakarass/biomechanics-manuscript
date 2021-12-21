@@ -40,6 +40,9 @@ for (i in 1 : length(fnames)){ # i <- 1
     paste0(x_initials_anonym, substr(x, 3, nchar(x)))
   })
   
+  # add subject id
+  dat$subj_id <- substr(x, 1, 2)
+  
   # save anonymized file 
   f_anonym_name <- paste0(file_path_sans_ext(f_orig_name), "_anonym.", tolower(file_ext(f_orig_name)))
   f_anonym_path <- file.path(here(), "data", f_anonym_name)

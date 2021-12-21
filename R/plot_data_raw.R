@@ -15,9 +15,6 @@ separate <- tidyr::separate
 # to have here() pointing to the project directory path 
 here() 
 
-# read file with ggplot theme config (the same for the whole project)
-source(file.path(here(), "R", "config_figures.R"))
-
 
 # ------------------------------------------------------------------------------
 # READ DATA  -------------------------------------------------------------------
@@ -223,7 +220,16 @@ legend("topleft", legend= c("16","17","18","19"),col=c("Red","Blue","Green", "Or
 # ------------------------------------------------------------------------------
 
 # get subject hash -- subject ID mapping from strength df
-strength_sub <- strength %>% select(subj_id, subj_idx)
+
+#' @TODO : handle the duplicate initials 
+strength_sub <- 
+  strength %>% 
+  select(subj_id, subj_idx) %>% 
+  group_by(subj_id) %>% 
+  filter(n() == 1) %>%
+  ungroup()
+length(strength_sub$subj_id)
+length(unique(strength_sub$subj_id))
 
 # prepare plot data 
 # add info about dimension (x,y,z) to each data set 
@@ -248,26 +254,44 @@ plt_df_long <-
   filter(carrera %in% carrera_sub_levels) %>%
   mutate(carrera_fct = factor(carrera, levels = carrera_sub_levels, labels = carrera_sub_labels)) %>%
   separate(archivo, into = "subj_id", sep = "_", extra = "drop") %>%
-  left_join(strength_sub, by = "subj_id")  %>%
+  inner_join(strength_sub, by = "subj_id")  %>%
   filter(!is.na(subj_idx)) %>%
   pivot_longer(cols = starts_with("V")) %>%
   mutate(
     name = gsub("V", "", name),
     name = as.numeric(name),
     phase = (name - min(name))/(max(name) - min(name)),
+    phase = phase * 100,
     obs_id = paste0(subj_id, "_", carrera, "_", dimens, "_", paso),
     obs_id = gsub(" ", "_", obs_id),
     subj_idx_fct = factor(subj_idx, levels = subj_idx_levels, labels = subj_idx_labels)
     ) %>%
   as.data.frame()
+
 head(plt_df_long)
+length(unique(plt_df_long$subj_idx_fct))
+length(unique(plt_df_long$subj_idx_fct))
 
 # generate plot 
 plt <- 
   ggplot(plt_df_long, aes(x = phase, y = value, color = dimens, group = obs_id)) + 
-  geom_line() + 
+  geom_line(alpha = 0.5, size = 0.5) + 
   facet_wrap(~ subj_idx_fct, ncol = 4) + 
-  labs(x = "Stride phase", 
-       y = "value")
+  scale_color_manual(breaks = c("x", "y", "z"),
+                     values = c("blue", "red", "green"))  + 
+  labs(x = "% cycle, t",  y = "Angle(t)", color = "Measurement: ") + 
+  theme_bw(base_size = 14) + 
+  theme(legend.background = element_rect(fill = alpha('white', 0.6), color = NA),
+        panel.grid.major = element_line(size = 0.2),  
+        panel.grid.minor = element_blank(),
+        panel.border = element_blank(),
+        legend.position = "bottom",
+        strip.background = element_rect(fill = alpha('white', 0.1), color = NA)
+        ) 
 plt
+
+path_tmp <- file.path(here(), "results_figures", "raw_data_per_subject.jpeg") 
+ggsave(filename = path_tmp, plot = plt, width = 20, height = 24, units = "cm")
+
+
 

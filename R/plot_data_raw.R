@@ -1,6 +1,9 @@
 
 #' @description 
 #' Script to plot raw data (angle profiles recorded along 20 strides in two HIIT sessions)
+#' 
+#' @author 
+#' Marcos Matabuena, Marta Karas
 
 rm(list = ls())
 library(here)
@@ -270,12 +273,11 @@ plt_df_long <-
 
 head(plt_df_long)
 length(unique(plt_df_long$subj_idx_fct))
-length(unique(plt_df_long$subj_idx_fct))
 
 # generate plot 
 plt <- 
   ggplot(plt_df_long, aes(x = phase, y = value, color = dimens, group = obs_id)) + 
-  geom_line(alpha = 0.5, size = 0.5) + 
+  geom_line(alpha = 0.3, size = 0.5) + 
   facet_wrap(~ subj_idx_fct, ncol = 4) + 
   scale_color_manual(breaks = c("x", "y", "z"),
                      values = c("blue", "red", "green"))  + 
@@ -286,7 +288,8 @@ plt <-
         panel.grid.minor = element_blank(),
         panel.border = element_blank(),
         legend.position = "bottom",
-        strip.background = element_rect(fill = alpha('white', 0.1), color = NA)
+        strip.background = element_rect(fill = alpha('white', 0.1), color = NA),
+        strip.text = element_text(angle = 0, hjust = 0)
         ) 
 plt
 

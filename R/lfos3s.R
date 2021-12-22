@@ -151,7 +151,7 @@ lfosr3s <- function(formula, data, family = "gaussian", argvals = NULL, var = FA
       ################ Preparation
       if(silent == FALSE) print("Step 3.1: Preparation")
       
-      if(silent == FALSE) print("Step 3.1.1: derive variance estimates of random components (\hat{H}(s), \hat{R}(s))")
+      if(silent == FALSE) print("Step 3.1.1: derive variance estimates of random components (hat{H}(s), hat{R}(s))")
       ## 1. derive variance estimates of random components (\hat{H}(s), \hat{R}(s))
       ### smooth raw estimates
       #HHat <- t(apply(sigmausqHat, 1, function(b) smooth.spline(x = argvals, y = b)$y))
@@ -171,7 +171,7 @@ lfosr3s <- function(formula, data, family = "gaussian", argvals = NULL, var = FA
       # RHat <- t(apply(sigmaesqHat, 1, function(b) smooth.spline(x = argvals, y = b)$y))
       RHat[which(RHat < 0)] <- 0
       
-      if(silent == FALSE) print("Step 3.1.2: derive covariance estimates of random components (\hat{G}(s1, s2))")
+      if(silent == FALSE) print("Step 3.1.2: derive covariance estimates of random components (hat{G}(s1, s2))")
       ## 2. derive covariance estimates of random components (\hat{G}(s1,s2))
       if(length(which(rownames(HHat) == "cov")) == 0){
         GTilde <- matrix(NA, nrow = L, ncol = L)
@@ -271,7 +271,7 @@ lfosr3s <- function(formula, data, family = "gaussian", argvals = NULL, var = FA
       ################ First step
       if(silent == FALSE) print("Step 3.2")
 
-      if(silent == FALSE) print("Step 3.2.1: derive intra-location variance (Var(\Tilde{\beta}(s)))")
+      if(silent == FALSE) print("Step 3.2.1: derive intra-location variance (Var(Tilde{beta}(s)))")
       ## 1. intra-location variance (Var(\Tilde{\beta}(s)))
       var.beta.tilde.theo <- array(NA, dim = c(p,p,L))
       for(s in 1:L){
@@ -283,7 +283,7 @@ lfosr3s <- function(formula, data, family = "gaussian", argvals = NULL, var = FA
         var.beta.tilde.theo[,,s] <- solve(tmp)
       }
       
-      if(silent == FALSE) print("Step 3.2.2: inter-location covariance (Cov(\Tilde{\beta}(s_1), \Tilde{\beta}(s_2)))")
+      if(silent == FALSE) print("Step 3.2.2: inter-location covariance (Cov(Tilde{beta}(s_1), Tilde{beta}(s_2)))")
       ## 2. inter-location covariance (Cov(\Tilde{\beta}(s_1), \Tilde{\beta}(s_2)))
       cov.beta.tilde.theo <- array(NA, dim = c(p,p,L,L))
       for(i in 1:L){
@@ -316,7 +316,7 @@ lfosr3s <- function(formula, data, family = "gaussian", argvals = NULL, var = FA
         }
       }
       
-      if(silent == FALSE) print("Step 3.3.2: final variance estimate of betaHat (Cov(\hat{\beta}(s_1), \hat{\beta}(s_2)))")
+      if(silent == FALSE) print("Step 3.3.2: final variance estimate of betaHat (Cov(hat{beta}(s_1), hat{beta}(s_2)))")
       ## 2. final variance estimate of betaHat (Cov(\hat{\beta}(s_1), \hat{\beta}(s_2)))
       var.beta.hat <- array(NA, dim = c(L,L,p))
       for(r in 1:p){

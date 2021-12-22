@@ -3,7 +3,7 @@
 #' Script to plot data with strength measurements
 #' 
 #' @author 
-#' Marcos Matabuena
+#' Marcos Matabuena, Marta Karas
 
 rm(list = ls())
 library(here)

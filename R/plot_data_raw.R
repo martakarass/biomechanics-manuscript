@@ -177,56 +177,68 @@ plt_df <- rbind(
   datosindividualesKnee_Zstride2
 )
 
-# define Race levels
-Race_sub_levels <- c("HT1 post", "HT2 post")
-Race_sub_labels <- c("1", "2")
-SubjIdx_levels <- sort(unique(plt_df$SubjIdx))
-SubjIdx_labels <- paste0("ID ", SubjIdx_levels)
+# define list of race combinations
+race_comb_list <- list(
+  c("HT1 pre", "HT2 pre"),
+  c("HT1 post", "HT2 post"),
+  c("CR1 pre", "CR2 pre"),
+  c("CR1 post", "CR2 post")
+)
 
-# mutate, format to long 
-plt_df_long <- 
-  plt_df %>%
-  filter(Race %in% Race_sub_levels) %>%
-  mutate(Race_fct = factor(Race, levels = Race_sub_levels, labels = Race_sub_labels)) %>%
-  # separate(SubjId, into = "subj_id", sep = "_", extra = "drop") %>%
-  # inner_join(strength, by = c("SubjId", "SubjIdx"))  %>%
-  # filter(!is.na(SubjIdx)) %>%
-  pivot_longer(cols = starts_with("V")) %>%
-  mutate(
-    name = gsub("V", "", name),
-    name = as.numeric(name),
-    phase = (name - min(name))/(max(name) - min(name)),
-    phase = phase * 100,
-    obs_id = paste0(SubjId, "_", Race, "_", dimens, "_", Step),
-    obs_id = gsub(" ", "_", obs_id),
-    SubjIdx_fct = factor(SubjIdx, levels = SubjIdx_levels, labels = SubjIdx_labels)
-    ) %>%
-  as.data.frame()
-
-head(plt_df_long)
-length(unique(plt_df_long$SubjIdx_fct))
-
-# generate plot 
-plt <- 
-  ggplot(plt_df_long, aes(x = phase, y = value, color = dimens, group = obs_id)) + 
-  geom_line(alpha = 0.3, size = 0.5) + 
-  facet_wrap(~ SubjIdx_fct, ncol = 4) + 
-  scale_color_manual(breaks = c("x", "y", "z"),
-                     values = c("blue", "red", "green"))  + 
-  labs(x = "% cycle, t",  y = "Angle(t)", color = "Measurement: ") + 
-  theme_bw(base_size = 14) + 
-  theme(legend.background = element_rect(fill = alpha('white', 0.6), color = NA),
-        panel.grid.major = element_line(size = 0.2),  
-        panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
-        legend.position = "bottom",
-        strip.background = element_rect(fill = alpha('white', 0.1), color = NA),
-        strip.text = element_text(angle = 0, hjust = 0)
-        ) 
-plt
-
-path_tmp <- file.path(here(), "results_figures", "raw_data_per_subject.jpeg") 
-ggsave(filename = path_tmp, plot = plt, width = 20, height = 24, units = "cm")
-
+for (comb_tmp in race_comb_list){ # comb_tmp <- c("HT1 post", "HT2 post")
+  
+  # define races combination label specific to current loop iteration
+  plot_label_tmp <- paste0(gsub(" ", "", comb_tmp[1]), "_", gsub(" ", "", comb_tmp[2]))
+  message(paste0("plot_label_tmp = ", plot_label_tmp))
+  
+  # define Race levels
+  # Race_sub_levels <- c("HT1 post", "HT2 post")
+  Race_sub_levels <- comb_tmp
+  Race_sub_labels <- c("1", "2")
+  # define SubjIdx levels
+  SubjIdx_levels <- sort(unique(plt_df$SubjIdx))
+  SubjIdx_labels <- paste0("ID ", SubjIdx_levels)
+  
+  # prepare plot frame
+  plt_df_long <- 
+    plt_df %>%
+    filter(Race %in% Race_sub_levels) %>%
+    mutate(Race_fct = factor(Race, levels = Race_sub_levels, labels = Race_sub_labels)) %>%
+    pivot_longer(cols = starts_with("V")) %>%
+    mutate(
+      name = gsub("V", "", name),
+      name = as.numeric(name),
+      phase = (name - min(name))/(max(name) - min(name)),
+      phase = phase * 100,
+      obs_id = paste0(SubjId, "_", Race, "_", dimens, "_", Step),
+      obs_id = gsub(" ", "_", obs_id),
+      SubjIdx_fct = factor(SubjIdx, levels = SubjIdx_levels, labels = SubjIdx_labels)
+      ) %>%
+    as.data.frame()
+  
+  # generate plot 
+  plt <- 
+    ggplot(plt_df_long, aes(x = phase, y = value, color = dimens, group = obs_id)) + 
+    geom_line(alpha = 0.3, size = 0.5) + 
+    facet_wrap(~ SubjIdx_fct, ncol = 4) + 
+    scale_color_manual(breaks = c("x", "y", "z"),
+                       values = c("blue", "red", "green"))  + 
+    labs(x = "% cycle, t",  y = "Angle(t)", color = "Measurement: ") + 
+    theme_bw(base_size = 14) + 
+    theme(legend.background = element_rect(fill = alpha('white', 0.6), color = NA),
+          panel.grid.major = element_line(size = 0.2),  
+          panel.grid.minor = element_blank(),
+          panel.border = element_blank(),
+          legend.position = "bottom",
+          strip.background = element_rect(fill = alpha('white', 0.1), color = NA),
+          strip.text = element_text(angle = 0, hjust = 0)
+          ) 
+  # plt
+  
+  # save plot to file
+  fname_tmp <- paste0("raw_data_per_subject_", plot_label_tmp, ".jpeg")
+  fpath_tmp <- file.path(here(), "results_figures", fname_tmp) 
+  ggsave(filename = fpath_tmp, plot = plt, width = 20, height = 24, units = "cm")
+}
 
 

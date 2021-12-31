@@ -6,10 +6,8 @@
 
 rm(list = ls())
 library(here)
-library(readr)
 library(fda.usc)
 library(tidyverse)
-library(I2C2)
 select <- dplyr::select
 filter <- dplyr::filter
 separate <- tidyr::separate
@@ -18,7 +16,6 @@ separate <- tidyr::separate
 # to have here() pointing to the project directory path 
 here() 
 
-source(file.path(here(), "R", "threenest.R"))
 source(file.path(here(), "R", "lfos3s.R"))
 
 
@@ -32,62 +29,66 @@ datosindividualesKnee_Xstride2 <- readRDS(file.path(here(), "data", "Knee_Xstrid
 datosindividualesKnee_Ystride2 <- readRDS(file.path(here(), "data", "Knee_Ystride_anonym.rds"))
 datosindividualesKnee_Zstride2 <- readRDS(file.path(here(), "data", "Knee_Zstride_anonym.rds"))
 # swing 
-datosindividualesKnee_Xswing2 <- readRDS(file.path(here(), "data", "Knee_Xswing_anonym.rds"))  
-datosindividualesKnee_Yswing2 <- readRDS(file.path(here(), "data", "Knee_Yswing_anonym.rds")) 
-datosindividualesKnee_Zswing2 <- readRDS(file.path(here(), "data", "Knee_Zswing_anonym.rds"))  
 
 # look up some variable stats
-dim(datosindividualesKnee_Zswing2)
-table(datosindividualesKnee_Zswing2$paso)
-table(datosindividualesKnee_Zswing2$archivo)
-table(datosindividualesKnee_Zswing2$carrera)
+dim(datosindividualesKnee_Zstride2)
+table(datosindividualesKnee_Zstride2$Step)
+table(datosindividualesKnee_Zstride2$SubjIdx)
 
 # read strength data (anonymized)
 strength_path <- file.path(here(), "data", "strength_anonym.rds")
 strength <- readRDS(strength_path)
+head(strength)
 
 
 # ------------------------------------------------------------------------------
-# READ DATA  -------------------------------------------------------------------
+# FIT FOSR, VER 1  -------------------------------------------------------------
 # ------------------------------------------------------------------------------
 
-aux  = datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$carrera=="HT1 Post",]
-aux2 = datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$carrera=="HT 2 Post",]
-aux3 = datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$carrera=="CR1 Pre",]
-aux4 = datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$carrera=="CR1 POST",]
+aux  = datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$Race=="HT1 post",]
+aux2 = datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$Race=="HT2 post",]
+aux3 = datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$Race=="CR1 pre",]
+aux4 = datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$Race=="CR1 post",]
 
-nombres  = unique(datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$carrera=="HT1 Post",]$archivo)
-nombres2 = unique(datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$carrera=="HT 2 Post",]$archivo)
-nombres3 = unique(datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$carrera=="CR1 Pre",]$archivo)
-nombres4 = unique(datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$carrera=="CR1 POST",]$archivo)
+nombres  = unique(datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$Race=="HT1 post",]$SubjIdx)
+nombres2 = unique(datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$Race=="HT2 post",]$SubjIdx)
+nombres3 = unique(datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$Race=="CR1 pre",]$SubjIdx)
+nombres4 = unique(datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$Race=="CR1 post",]$SubjIdx)
+
+all(nombres == nombres2)
+all(nombres == nombres3)
+all(nombres == nombres4)
 
 lista = 1:19
 lista = as.list(lista)
-for(i in 1:19){
-  auxnombres1= fdata(aux[aux$archivo==nombres[i],1:100], argvals = seq(0,1,length=100))
-  auxnombres2= fdata(aux2[aux2$archivo==nombres2[i],1:100], argvals = seq(0,1,length=100))
-  auxnombres3= fdata(aux3[aux3$archivo==nombres3[i],1:100], argvals = seq(0,1,length=100))
-  auxnombres4= fdata(aux4[aux4$archivo==nombres4[i],1:100], argvals = seq(0,1,length=100))
-  sel = rbind(
-    aux[aux$archivo==nombres[i],1:100],
-    aux2[aux2$archivo==nombres2[i],1:100],
-    aux3[aux3$archivo==nombres3[i],1:100],
-    aux4[aux4$archivo==nombres4[i],1:100])
-  lista[[i]] = as.matrix(sel)
+for(i in 1:19){ # i <- 1
+  # auxnombres1= fdata(aux[aux$SubjIdx==nombres[i],1:100], argvals = seq(0,1,length=100))
+  # auxnombres2= fdata(aux2[aux2$SubjIdx==nombres2[i],1:100], argvals = seq(0,1,length=100))
+  # auxnombres3= fdata(aux3[aux3$SubjIdx==nombres3[i],1:100], argvals = seq(0,1,length=100))
+  # auxnombres4= fdata(aux4[aux4$SubjIdx==nombres4[i],1:100], argvals = seq(0,1,length=100))
+  sel= rbind(aux[aux$SubjIdx==nombres[i],1:100],
+             aux2[aux2$SubjIdx==nombres2[i],1:100],
+             aux3[aux3$SubjIdx==nombres3[i],1:100],
+             aux4[aux4$SubjIdx==nombres4[i],1:100])
+  lista[[i]]= as.matrix(sel)
+  if (!(nrow(lista[[i]]) == 80)) stop("!(nrow(ista[[i]]) == 80)")
 }
+dim(lista[[1]])
 
 
-sexo = strength %>% pull(1)
-sexo = ifelse(sexo == "male", 1, 0)
+# comparison HIIT AND CT introducing race and sex as a covariates
+gender = strength$Gender
+gender = ifelse(gender=="male", 1, 0)
 
-# comparision HIT AND CT introducing race and sex as a covariates
 matriz = matrix(0, nrow= 19*40*2, ncol=104)
-contar =1
-for(i in 1:19){
+contar = 1
+for(i in 1:19){  # i <- 1
   matriz[contar:(contar+79),1]= rep(i,40)
-  matriz[contar:(contar+79),2]=rep(sexo[i],40)
-  matriz[contar:(contar+79),3]=c(rep(1,40), rep(2,40))
-  matriz[contar:(contar+79),4:103]= lista[[i]] 
+  matriz[contar:(contar+79),2]= rep(gender[i],40)
+  # matriz[contar:(contar+79),3]= c(rep(1,40), rep(2,40)) ## FIXED HERE!!
+  # HT == 0, CR == 1
+  matriz[contar:(contar+79),3]= c(rep(0,40), rep(1,40))
+  matriz[contar:(contar+79),4:103] = lista[[i]] 
   contar= contar+80
 }
 
@@ -96,56 +97,101 @@ datas= as.data.frame(datas)
 colnames(datas)[1]="id"
 colnames(datas)[2]="Gender"
 colnames(datas)[3]="Race"
-datas$Y= datas[,4:104]
-str(datas)
-table(datas$id)
-table(datas$Gender)
-table(datas$Race)
+# datas$Y= datas[,4:104]    ## FIXED HERE!!
+datas$Y= datas[,4:103]
+dim(datas$Y)
+# [1] 1520  100
 
-datas %>% group_by(id, Gender, Race) %>% summarise(cnt = n())
-# A tibble: 38 × 4
-# Groups:   id, Gender [19]
-#      id Gender  Race   cnt
-#   <dbl>  <dbl> <dbl> <int>
-# 1     1      1     1    40
-# 2     1      1     2    40
-# 3     2      0     1    40
-# 4     2      0     2    40
-# 5     3      0     1    40
-# 6     3      0     2    40
-# 7     4      1     1    40
-# 8     4      1     2    40
-# 9     5      1     1    40
-# 10     5      1     2    40
+t1 <- Sys.time()
+fit_lfosr3s <- lfosr3s(formula = Y ~ Gender + Race + (1 | id), data = datas, 
+                       var = TRUE, analytic = TRUE, parallel = FALSE, silent = FALSE)
+t2 <- Sys.time()
+t2-t1
 
-
-# t1 <- Sys.time()
-# fit_lfosr3s_analytic <- 
-#   lfosr3s(formula = Y ~ Gender + Race + (1 | id), data = datas,
-#           var = TRUE, analytic = TRUE, parallel = FALSE, silent = FALSE)
-# t2 <- Sys.time()
-# t2 - t1
-# # Time difference of 22.52151 secs
-# saveRDS(fit_lfosr3s_analytic, file = file.path(here(), "results_objects", "fit_lfosr3s_analytic.rds"))
-
-
-# t1 <- Sys.time()
-# fit_lfosr3s_boot <- 
-#   lfosr3s(formula = Y ~ Gender + Race + (1 | id), data = datas,
-#           var = TRUE, analytic = FALSE, parallel = TRUE, silent = FALSE)
-# t2 <- Sys.time()
-# t2 - t1
-# # Time difference of 27.01422 secs
-# saveRDS(fit_lfosr3s_boot, file = file.path(here(), "results_objects", "fit_lfosr3s_boot.rds"))
-
-
-fit_lfosr3s <- readRDS(file.path(here(), "results_objects", "fit_lfosr3s_analytic.rds"))
-str(fit_lfosr3s)
-
-plot(fdata(fit_lfosr3s$betaHat[1,]),main="Intercept")
-plot(fdata(fit_lfosr3s$betaHat[2,]),main="Gender")
-plot(fdata(fit_lfosr3s$betaHat[3,]),main="Race")
-
+plot(fdata(fit_lfosr3s$betaHat[1,]), main="Intercept")
+plot(fdata(fit_lfosr3s$betaHat[2,]), main="Gender")
+plot(fdata(fit_lfosr3s$betaHat[3,]), main="Race")
+print(fit_lfosr3s$betaHat)
 str(fit_lfosr3s$betaHat.var)
+
+
+# ------------------------------------------------------------------------------
+# FIT FOSR, VER 2  -------------------------------------------------------------
+# ------------------------------------------------------------------------------
+
+# prepare data 
+# add info about axis (x,y,z) to each data set 
+datosindividualesKnee_Xstride2$axis <- "x" 
+datosindividualesKnee_Ystride2$axis <- "y" 
+datosindividualesKnee_Zstride2$axis <- "z" 
+plt_df <- rbind(
+  datosindividualesKnee_Xstride2,
+  datosindividualesKnee_Ystride2,
+  datosindividualesKnee_Zstride2
+)
+
+# add gender info 
+strength_sub <- strength %>% select(SubjIdx, Gender)
+plt_df <- plt_df %>% left_join(strength_sub, by = "SubjIdx")
+
+# define RaceType levels
+RaceType_levels <- c("CR", "HT")
+# define Gender levels
+Gender_levels <- c("female", "male")
+# SubjIdx  levels
+SubjIdx_levels <- 1 : 19
+
+# add RaceType, RacePart info 
+plt_df <- 
+  plt_df %>% 
+  separate(Race, sep = " ", into = c("RaceType", "RacePart"), remove = FALSE) %>%
+  mutate(RaceIdx = substr(RaceType, 3, 4)) %>%
+  mutate(RaceType = substr(RaceType, 0, 2)) %>%
+  # [former]
+  mutate(gender = ifelse(Gender == "male", 1, 0)) %>%
+  mutate(race = ifelse(RaceType == "CR", 1, 0)) 
+  # [mine]
+  # mutate(RaceType_fct = factor(RaceType, levels = RaceType_levels)) %>%
+  # mutate(Gender_fct = factor(Gender, levels = Gender_levels)) %>%
+  # mutate(SubjIdx_fct = factor(SubjIdx, levels = SubjIdx_levels))
+head(plt_df)
+
+
+# define unique values of fit 
+axis_unq <- sort(unique(plt_df$axis))
+axis_tmp <- "z"
+Race_sub_tmp <- c("HT1 post", "HT2 post", "CR1 pre", "CR1 post")
+
+fit_df_tmp    <- plt_df %>% filter(axis == axis_tmp, Race %in% Race_sub_tmp)
+fit_Y_tmp     <- fit_df_tmp %>% select(starts_with("V")) %>% as.matrix()
+fit_dat_tmp   <- fit_df_tmp %>% select(-starts_with("V"))
+fit_dat_tmp$Y <- fit_Y_tmp
+
+dim(fit_dat_tmp)
+dim(fit_dat_tmp$Y)
+
+# t1 <- Sys.time()
+# fit_tmp <- lfosr3s(formula = Y ~ Gender_fct + RaceType_fct + (1 | SubjIdx_fct), 
+#                    data = fit_dat_tmp, 
+#                    var = TRUE, analytic = TRUE, parallel = FALSE, silent = FALSE)
+# t2 <- Sys.time()
+# t2-t1
+
+t1 <- Sys.time()
+fit_tmp <- lfosr3s(formula = Y ~ gender + race + (1 | SubjIdx),
+                   data = fit_dat_tmp,
+                   var = TRUE, analytic = TRUE, parallel = FALSE, silent = FALSE)
+t2 <- Sys.time()
+t2-t1
+
+
+plot(fdata(fit_tmp$betaHat[1,]), main="Intercept")
+plot(fdata(fit_tmp$betaHat[2,]), main="Gender (male=1, female=0)")
+plot(fdata(fit_tmp$betaHat[3,]), main="Race (CR=1, HT=0)")
+print(fit_tmp$betaHat)
+str(fit_tmp$betaHat.var)
+
+
+
 
 

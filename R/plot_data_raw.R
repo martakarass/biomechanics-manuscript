@@ -39,10 +39,6 @@ table(datosindividualesKnee_Zswing2$SubjId)
 table(datosindividualesKnee_Zswing2$Race)
 datosindividualesKnee_Xstride2[, 100:104]
 
-# read force data (anonymized)
-strength_path <- file.path(here(), "data", "strength_anonym.rds")
-strength <- readRDS(strength_path)
-str(strength)
 
 # ------------------------------------------------------------------------------
 # PLOT FUNCTIONAL OBSERVATIONS, ALL AT ONCE  -----------------------------------
@@ -81,62 +77,6 @@ plot(fda1Y, main="CR1 Pre")
 plot(fda2Y, main="CR1 Post")
 plot(fda6Y, main="HIT1 Post")
 plot(fda8Y, main="HIT2 Post")
-
-
-# ------------------------------------------------------------------------------
-# PLOT STRENGTH INFORMATION  ---------------------------------------------------
-# ------------------------------------------------------------------------------
-
-# FUNCTION TO PLOT STRENGHT INFORMATION
-grafico= function(x, nombres = strength$SubjIdx, variable="Variable"){
-  x=apply(x,2, as.numeric)
-  n= dim(x)[1]
-  p= dim(x)[2]
-  minimo= min(x,na.rm = TRUE)
-  maximo= max(x,na.rm = TRUE)
-  xaux= c(1,2,3,4)
-  yaux= x[1,]
-  plot(xaux,yaux,ylim= c(minimo, maximo),type = "l",main= variable)
-  text(mean(xaux), mean(yaux,na.rm=TRUE), labels=nombres[1])
-  for(i in 2:n){
-    yaux= x[i,]
-    lines(xaux,yaux)
-    text(mean(xaux), mean(yaux,na.rm=TRUE), labels=nombres[i])
-  }
-}
-
-# HABDStrength : hip abduction 
-# HADDStrength : Hip Adduction
-# HEStrength : Hip Extension 
-# HFStrength : Hip Flexion 
-# KFStrength : Knee Flexion 
-# KE Strength; Knee Extension 
-HABD = strength %>% select(starts_with("HABDstrength"))
-HADD = strength %>% select(starts_with("HADDstrength")) 
-HER  = strength %>% select(starts_with("HERstrength")) 
-HIR  = strength %>% select(starts_with("HIRstrength")) 
-HF   = strength %>% select(starts_with("HFstrength")) 
-KE   = strength %>% select(starts_with("KEstrength")) 
-KF   = strength %>% select(starts_with("KFstrength")) 
-HE   = strength %>% select(starts_with("HEstrength")) 
-# HABD = strength[,c(4,5,20,21)]
-# HADD=strength[,c(6,7,22,23)]
-# HER= strength[,c(8,9,24,25)]
-# HIR= strength[,c(10,11,26,27)]
-# HF=  strength[,c(12,13,28,29)]
-# KE=  strength[,c(14,15,30,31)]
-# KF=  strength[,c(16,17,32,33)]
-# HE=  strength[,c(18,19,34,35)] 
-
-# x <- HABD; variable = "HABD"; nombres = strength$SubjIdx
-grafico(HABD, variable = "HABD")
-grafico(HADD, variable = "HADD")
-grafico(HER, variable = "HER")
-grafico(HIR, variable = "HIR")
-grafico(HF, variable = "HF")
-grafico(KE, variable = "KE")
-grafico(KF, variable = "KF")
-grafico(HE, variable = "HE")
 
 
 # ------------------------------------------------------------------------------
@@ -219,6 +159,7 @@ legend("topleft", legend= c("16","17","18","19"),col=c("Red","Blue","Green", "Or
 # dev.off()
 
 # plot.new()
+par(mfrow=c(1,1))
 
 
 # ------------------------------------------------------------------------------
@@ -239,7 +180,7 @@ plt_df <- rbind(
 # define Race levels
 Race_sub_levels <- c("HT1 post", "HT2 post")
 Race_sub_labels <- c("1", "2")
-SubjIdx_levels <- sort(unique(strength$SubjIdx))
+SubjIdx_levels <- sort(unique(plt_df$SubjIdx))
 SubjIdx_labels <- paste0("ID ", SubjIdx_levels)
 
 # mutate, format to long 
@@ -248,7 +189,7 @@ plt_df_long <-
   filter(Race %in% Race_sub_levels) %>%
   mutate(Race_fct = factor(Race, levels = Race_sub_levels, labels = Race_sub_labels)) %>%
   # separate(SubjId, into = "subj_id", sep = "_", extra = "drop") %>%
-  inner_join(strength, by = c("SubjId", "SubjIdx"))  %>%
+  # inner_join(strength, by = c("SubjId", "SubjIdx"))  %>%
   # filter(!is.na(SubjIdx)) %>%
   pivot_longer(cols = starts_with("V")) %>%
   mutate(

@@ -39,4 +39,6 @@ vignettes/*.pdf
 .Renviron
 
 # TODO: update whether we gitignore data 
-data/
+#data/
+
+R/OLD/

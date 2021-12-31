@@ -1,9 +1,7 @@
 
 #' @description 
-#' Script to anonymize forces data (original, non-anonymized file is stored locally). 
+#' Script to anonymize strength data (original, non-anonymized file is stored locally). 
 #' Save anonymized data as separate file in the project directory (publicly available). 
-
-#' @TODO correct subj_id
 
 rm(list = ls())
 library(tidyverse)
@@ -18,32 +16,26 @@ here()
 
 
 # read force data 
-fuerza_path <-  "/Users/martakaras/Dropbox/BIOMECHANICSNEW/fuerza.csv"
-fuerza <- read_delim(fuerza_path, delim = ";", escape_double = FALSE, col_names = TRUE,
-                     locale = locale(decimal_mark = ","), na = "NA", trim_ws = TRUE)
-fuerza = as.data.frame(fuerza)
-head(fuerza)
+dat_strength_path <-  "/Users/martakaras/Downloads/New_files/fuerza.csv"
+# dat_strength <- read_delim(dat_strength_path, delim = ";", escape_double = FALSE, col_names = TRUE,
+#                      locale = locale(decimal_mark = ","), na = "NA", trim_ws = TRUE)
+dat_strength <- as.data.frame(fread(dat_strength_path))
 
-# arrange rows by subj id number 
-fuerza = fuerza[order(fuerza[,2]),]
-fuerza[, 3] = 1 : 19
-str(fuerza)
-head(fuerza)
-
+# remove redundant columns
+dat_strength <- select(dat_strength, -V1)
 # rename columns
-names(fuerza)[c(1,2,3)] <- c("sex", "subj_id", "subj_idx")
+names(dat_strength)[2] <- "SubjId"
+names(dat_strength)[3] <- "SubjIdx"
 
-# use hash function to anonymize IDs 
-fuerza$subj_id <- sapply(fuerza$subj_id, digest, algo = 'xxhash32')
-fuerza$subj_id
+head(dat_strength)
+str(dat_strength)
 
 # save to file 
-fuerza <- as_tibble(fuerza)
-fuerza_f_path <- file.path(here(), "data", "strength_anonym.rds")
-saveRDS(fuerza, fuerza_f_path)
-# fwrite(fuerza, fuerza_f_path)
+dat_strength <- as_tibble(dat_strength)
+dat_strength_f_path <- file.path(here(), "data", "strength_anonym.rds")
+saveRDS(dat_strength, dat_strength_f_path)
 
-message(paste0("Forces data anonymized and saved: ", fuerza_f_path))
+message(paste0("Strength data anonymized and saved: ", dat_strength_f_path))
 
 
 

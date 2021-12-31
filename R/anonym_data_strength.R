@@ -4,11 +4,9 @@
 #' Save anonymized data as separate file in the project directory (publicly available). 
 
 rm(list = ls())
-library(tidyverse)
 library(here)
-library(readr)
-library(digest)
 library(data.table)
+library(tidyverse)
 
 # open the project in RStudio via clicking biomechanics-manuscript.Rproj
 # to have here() pointing to the project directory path 
@@ -31,7 +29,6 @@ head(dat_strength)
 str(dat_strength)
 
 # save to file 
-dat_strength <- as_tibble(dat_strength)
 dat_strength_f_path <- file.path(here(), "data", "strength_anonym.rds")
 saveRDS(dat_strength, dat_strength_f_path)
 

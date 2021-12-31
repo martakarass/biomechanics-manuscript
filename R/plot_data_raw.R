@@ -7,7 +7,6 @@
 
 rm(list = ls())
 library(here)
-library(readr)
 library(fda.usc)
 library(tidyverse)
 select <- dplyr::select
@@ -35,19 +34,15 @@ datosindividualesKnee_Zswing2 <- readRDS(file.path(here(), "data", "Knee_Zswing_
 
 # look up some variable stats
 dim(datosindividualesKnee_Zswing2)
-table(datosindividualesKnee_Zswing2$paso)
-table(datosindividualesKnee_Zswing2$archivo)
-table(datosindividualesKnee_Zswing2$carrera)
-datosindividualesKnee_Xstride2[, c(101, 102, 103)]
+table(datosindividualesKnee_Zswing2$Step)
+table(datosindividualesKnee_Zswing2$SubjId)
+table(datosindividualesKnee_Zswing2$Race)
+datosindividualesKnee_Xstride2[, 100:104]
 
 # read force data (anonymized)
-# strength_path <- file.path(here(), "data", "strength_anonym.csv")
-# strength <- read_csv(strength_path)
 strength_path <- file.path(here(), "data", "strength_anonym.rds")
 strength <- readRDS(strength_path)
-# head(strength)
-# dim(strength)
-
+str(strength)
 
 # ------------------------------------------------------------------------------
 # PLOT FUNCTIONAL OBSERVATIONS, ALL AT ONCE  -----------------------------------
@@ -55,20 +50,20 @@ strength <- readRDS(strength_path)
 
 # Create a functional data object of class fdata
 # X dimension
-fda1X = fdata(datosindividualesKnee_Xstride2[datosindividualesKnee_Xstride2$carrera=="CR1 Pre",  1:100])
-fda2X = fdata(datosindividualesKnee_Xstride2[datosindividualesKnee_Xstride2$carrera=="CR1 POST", 1:100])
-fda6X = fdata(datosindividualesKnee_Xstride2[datosindividualesKnee_Xstride2$carrera=="HT1 Post", 1:100])
-fda8X = fdata(datosindividualesKnee_Xstride2[datosindividualesKnee_Xstride2$carrera=="HT 2 Post",1:100])
+fda1X = fdata(datosindividualesKnee_Xstride2[datosindividualesKnee_Xstride2$Race == "CR1 pre",  1:100])
+fda2X = fdata(datosindividualesKnee_Xstride2[datosindividualesKnee_Xstride2$Race == "CR1 post", 1:100])
+fda6X = fdata(datosindividualesKnee_Xstride2[datosindividualesKnee_Xstride2$Race == "HT1 post", 1:100])
+fda8X = fdata(datosindividualesKnee_Xstride2[datosindividualesKnee_Xstride2$Race == "HT2 post", 1:100])
 # Y dimension
-fda1Y = fdata(datosindividualesKnee_Ystride2[datosindividualesKnee_Ystride2$carrera=="CR1 Pre",1:100])
-fda2Y = fdata(datosindividualesKnee_Ystride2[datosindividualesKnee_Ystride2$carrera=="CR1 POST",1:100])
-fda6Y = fdata(datosindividualesKnee_Ystride2[datosindividualesKnee_Ystride2$carrera=="HT1 Post",1:100])
-fda8Y = fdata(datosindividualesKnee_Ystride2[datosindividualesKnee_Ystride2$carrera=="HT 2 Post",1:100])
+fda1Y = fdata(datosindividualesKnee_Ystride2[datosindividualesKnee_Ystride2$Race == "CR1 pre",  1:100])
+fda2Y = fdata(datosindividualesKnee_Ystride2[datosindividualesKnee_Ystride2$Race == "CR1 post", 1:100])
+fda6Y = fdata(datosindividualesKnee_Ystride2[datosindividualesKnee_Ystride2$Race == "HT1 Post", 1:100])
+fda8Y = fdata(datosindividualesKnee_Ystride2[datosindividualesKnee_Ystride2$Race == "HT2 post", 1:100])
 # Z dimension
-fda1Z = fdata(datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$carrera=="CR1 Pre",1:100])
-fda2Z = fdata(datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$carrera=="CR1 POST",1:100])
-fda6Z = fdata(datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$carrera=="HT1 Post",1:100])
-fda8Z = fdata(datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$carrera=="HT 2 Post",1:100])
+fda1Z = fdata(datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$Race == "CR1 pre",  1:100])
+fda2Z = fdata(datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$Race == "CR1 post", 1:100])
+fda6Z = fdata(datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$Race == "HT1 post", 1:100])
+fda8Z = fdata(datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$Race == "HT2 post", 1:100])
 
 # look up some data 
 dim(fda1X)
@@ -93,7 +88,7 @@ plot(fda8Y, main="HIT2 Post")
 # ------------------------------------------------------------------------------
 
 # FUNCTION TO PLOT STRENGHT INFORMATION
-grafico= function(x, nombres = strength$subj_idx, variable="Variable"){
+grafico= function(x, nombres = strength$SubjIdx, variable="Variable"){
   x=apply(x,2, as.numeric)
   n= dim(x)[1]
   p= dim(x)[2]
@@ -116,16 +111,24 @@ grafico= function(x, nombres = strength$subj_idx, variable="Variable"){
 # HFStrength : Hip Flexion 
 # KFStrength : Knee Flexion 
 # KE Strength; Knee Extension 
-HABD=strength[,c(4,5,20,21)]
-HADD=strength[,c(6,7,22,23)]
-HER= strength[,c(8,9,24,25)]
-HIR= strength[,c(10,11,26,27)]
-HF=  strength[,c(12,13,28,29)]
-KE=  strength[,c(14,15,30,31)]
-KF=  strength[,c(16,17,32,33)]
-HE=  strength[,c(18,19,34,35)] 
+HABD = strength %>% select(starts_with("HABDstrength"))
+HADD = strength %>% select(starts_with("HADDstrength")) 
+HER  = strength %>% select(starts_with("HERstrength")) 
+HIR  = strength %>% select(starts_with("HIRstrength")) 
+HF   = strength %>% select(starts_with("HFstrength")) 
+KE   = strength %>% select(starts_with("KEstrength")) 
+KF   = strength %>% select(starts_with("KFstrength")) 
+HE   = strength %>% select(starts_with("HEstrength")) 
+# HABD = strength[,c(4,5,20,21)]
+# HADD=strength[,c(6,7,22,23)]
+# HER= strength[,c(8,9,24,25)]
+# HIR= strength[,c(10,11,26,27)]
+# HF=  strength[,c(12,13,28,29)]
+# KE=  strength[,c(14,15,30,31)]
+# KF=  strength[,c(16,17,32,33)]
+# HE=  strength[,c(18,19,34,35)] 
 
-# x <- HABD; variable = "HABD"; nombres = strength$subj_idx
+# x <- HABD; variable = "HABD"; nombres = strength$SubjIdx
 grafico(HABD, variable = "HABD")
 grafico(HADD, variable = "HADD")
 grafico(HER, variable = "HER")
@@ -141,21 +144,21 @@ grafico(HE, variable = "HE")
 # ------------------------------------------------------------------------------
 
 # PLOT PARTICIPANT DATA KNEE Z HT1 AND HIT2
-nombres= unique(datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$carrera=="HT1 Post",]$archivo)
-nombres2= unique(datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$carrera=="HT 2 Post",]$archivo)
-aux= datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$carrera=="HT1 Post",]
-aux2= datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$carrera=="HT 2 Post",]
-lista= 1:19
-lista= as.list(lista)
+nombres  = unique(datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$Race=="HT1 post",]$SubjId)
+nombres2 = unique(datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$Race=="HT2 post",]$SubjId)
+aux  = datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$Race=="HT1 post",]
+aux2 = datosindividualesKnee_Zstride2[datosindividualesKnee_Zstride2$Race=="HT2 post",]
+lista = 1:19
+lista = as.list(lista)
 
 # list with FUNCTIONAL INFORMATION OF  Knee_Zstride FUNCTIONAL PATTERNS on HT1 AND HT2 POST 
 # EACH ELEMENT OF THE LISK, ONE PARTICIPANT
 for(i in 1:19){
-  auxnombres1= fdata(aux[aux$archivo==nombres[i],1:100], argvals = seq(0,1,length=100))
-  auxnombres2= fdata(aux2[aux2$archivo==nombres2[i],1:100], argvals = seq(0,1,length=100))
+  auxnombres1= fdata(aux[aux$SubjId==nombres[i],1:100], argvals = seq(0,1,length=100))
+  auxnombres2= fdata(aux2[aux2$SubjId==nombres2[i],1:100], argvals = seq(0,1,length=100))
   plot(auxnombres1, main=nombres[i], ylim= c(-80,80))  
   lines(auxnombres2)  
-  sel= rbind(aux[aux$archivo==nombres[i],1:100],aux2[aux2$archivo==nombres2[i],1:100])
+  sel= rbind(aux[aux$SubjId==nombres[i],1:100],aux2[aux2$SubjId==nombres2[i],1:100])
   lista[[i]]= as.matrix(sel)
 }
 
@@ -222,18 +225,6 @@ legend("topleft", legend= c("16","17","18","19"),col=c("Red","Blue","Green", "Or
 # PLOT FUNCTIONAL OBSERVATONS, GROUPED, VER 2   --------------------------------
 # ------------------------------------------------------------------------------
 
-# get subject hash -- subject ID mapping from strength df
-
-#' @TODO : handle the duplicate initials 
-strength_sub <- 
-  strength %>% 
-  select(subj_id, subj_idx) %>% 
-  group_by(subj_id) %>% 
-  filter(n() == 1) %>%
-  ungroup()
-length(strength_sub$subj_id)
-length(unique(strength_sub$subj_id))
-
 # prepare plot data 
 # add info about dimension (x,y,z) to each data set 
 datosindividualesKnee_Xstride2$dimens <- "x" 
@@ -245,40 +236,40 @@ plt_df <- rbind(
   datosindividualesKnee_Zstride2
 )
 
-# define carrera levels
-carrera_sub_levels <- c("HT1 Post", "HT 2 Post")
-carrera_sub_labels <- c("1", "2")
-subj_idx_levels <- sort(unique(strength_sub$subj_idx))
-subj_idx_labels <- paste0("ID ", subj_idx_levels)
+# define Race levels
+Race_sub_levels <- c("HT1 post", "HT2 post")
+Race_sub_labels <- c("1", "2")
+SubjIdx_levels <- sort(unique(strength$SubjIdx))
+SubjIdx_labels <- paste0("ID ", SubjIdx_levels)
 
 # mutate, format to long 
 plt_df_long <- 
   plt_df %>%
-  filter(carrera %in% carrera_sub_levels) %>%
-  mutate(carrera_fct = factor(carrera, levels = carrera_sub_levels, labels = carrera_sub_labels)) %>%
-  separate(archivo, into = "subj_id", sep = "_", extra = "drop") %>%
-  inner_join(strength_sub, by = "subj_id")  %>%
-  filter(!is.na(subj_idx)) %>%
+  filter(Race %in% Race_sub_levels) %>%
+  mutate(Race_fct = factor(Race, levels = Race_sub_levels, labels = Race_sub_labels)) %>%
+  # separate(SubjId, into = "subj_id", sep = "_", extra = "drop") %>%
+  inner_join(strength, by = c("SubjId", "SubjIdx"))  %>%
+  # filter(!is.na(SubjIdx)) %>%
   pivot_longer(cols = starts_with("V")) %>%
   mutate(
     name = gsub("V", "", name),
     name = as.numeric(name),
     phase = (name - min(name))/(max(name) - min(name)),
     phase = phase * 100,
-    obs_id = paste0(subj_id, "_", carrera, "_", dimens, "_", paso),
+    obs_id = paste0(SubjId, "_", Race, "_", dimens, "_", Step),
     obs_id = gsub(" ", "_", obs_id),
-    subj_idx_fct = factor(subj_idx, levels = subj_idx_levels, labels = subj_idx_labels)
+    SubjIdx_fct = factor(SubjIdx, levels = SubjIdx_levels, labels = SubjIdx_labels)
     ) %>%
   as.data.frame()
 
 head(plt_df_long)
-length(unique(plt_df_long$subj_idx_fct))
+length(unique(plt_df_long$SubjIdx_fct))
 
 # generate plot 
 plt <- 
   ggplot(plt_df_long, aes(x = phase, y = value, color = dimens, group = obs_id)) + 
   geom_line(alpha = 0.3, size = 0.5) + 
-  facet_wrap(~ subj_idx_fct, ncol = 4) + 
+  facet_wrap(~ SubjIdx_fct, ncol = 4) + 
   scale_color_manual(breaks = c("x", "y", "z"),
                      values = c("blue", "red", "green"))  + 
   labs(x = "% cycle, t",  y = "Angle(t)", color = "Measurement: ") + 

@@ -6,8 +6,6 @@
 rm(list = ls())
 library(tidyverse)
 library(here)
-library(readr)
-library(digest)
 library(tools)
 
 # open the project in RStudio via clicking biomechanics-manuscript.Rproj

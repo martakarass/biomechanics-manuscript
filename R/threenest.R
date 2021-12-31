@@ -23,8 +23,12 @@
 #'
 #' @examples
 threenest <- function(Y, L1, L2, L3, smooth.h = FALSE, 
-                      smooth.y = TRUE, alg.y = 'smoothspline', bf = 5, Q = 20){
+                      smooth.y = TRUE, alg.y = 'smoothspline', bf = 5, Q = NULL, J = NULL){
   
+  # MK added -- Dec 30, 2021
+  if (is.null(Q)) Q <- L1 
+  if (is.null(J)) J <- L2 
+
   I_index=rep(1:L1,each=L2*L3)
   n=length(I_index)
   IJ_index=rep(1:(L1*L2),each=L3)

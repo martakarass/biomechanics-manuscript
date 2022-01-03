@@ -192,6 +192,21 @@ print(fit_tmp$betaHat)
 str(fit_tmp$betaHat.var)
 
 
+fit_tmp <- lfosr3s(formula = Y ~ gender + race + (1 | SubjIdx),
+                   data = fit_dat_tmp,
+                   var = TRUE, analytic = TRUE, parallel = FALSE, silent = FALSE)
+fit_tmp$betaHat.var
+# use bootstrap methodology 
+# boot CI 
+
+
+
+
+
+
+
+
+
 
 
 

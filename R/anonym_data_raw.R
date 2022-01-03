@@ -16,10 +16,7 @@ here()
 fnames <- c(
   "Knee_Xstride.RDS",
   "Knee_Ystride.RDS",
-  "Knee_Zstride.RDS",
-  "Knee_Xswing.RDS",
-  "Knee_Yswing.RDS",
-  "Knee_Zswing.RDS"
+  "Knee_Zstride.RDS"
 )
 fdir <- "/Users/martakaras/Dropbox/BIOMECHANICSNEW"
 
@@ -81,7 +78,8 @@ for (i in 1 : length(fnames)){ # i <- 1
     mutate(Race = gsub(" 2", "2", Race)) %>%
     mutate(Race = gsub("-", " ", Race)) %>%
     mutate(Race = gsub("cr", "CR", Race)) %>%
-    mutate(Race = gsub("ht", "HT", Race))
+    mutate(Race = gsub("ht", "HT", Race)) %>%
+    filter(Race %in% c("HT1 post", "HT2 post", "CR1 pre", "CR1 post"))
   
   # save anonymized file
   f_anonym_name <- paste0(file_path_sans_ext(f_orig_name), "_anonym.", tolower(file_ext(f_orig_name)))

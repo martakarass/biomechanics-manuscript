@@ -2,7 +2,8 @@
 #' 
 #' Fit longitudinal function-on-scalar regression using the proposed 3-step approach
 #' proposed and implemented in Cui et al. (2021). Minor edits 
-#' (non-parallel handling, message prining, other) introduced by Marcos Matabuena. 
+#' (non-parallel handling, message prining, other) introduced by 
+#' Marcos Matabuena and Marta Karas. 
 #'  
 #' @param formula two-sided formula object in lmer() format, except that the response is a matrix  
 #' @param data data frame containing variables in formula
@@ -13,6 +14,8 @@
 #' @param parallel whether to run parallel computing
 #' @param silent whether to show descriptions of each step
 #' @param B_boot number of bootstrap repetitions in step 3 (bootstrap inference case)
+#' @param knots_manual number of knots for penalized splines smoothing; if not specified,
+#' defaults to min(round(L/4), 35)
 #' @references
 #' Erjia Cui, Andrew Leroux, Ekaterina Smirnova, Ciprian M. Crainiceanu (2021) 
 #' Fast Univariate Inference for Longitudinal Functional Models, 
@@ -22,7 +25,8 @@
 #' @return a list containing estimated beta(s)
 
 lfosr3s <- function(formula, data, family = "gaussian", argvals = NULL, var = FALSE, 
-                    analytic = TRUE, parallel = FALSE, silent = FALSE, B_boot = 100){
+                    analytic = TRUE, parallel = FALSE, silent = FALSE, B_boot = 100, 
+                    knots_manual = NULL){
   
   require(lme4) ## mixed models
   require(refund) ## fpca.face
@@ -80,7 +84,7 @@ lfosr3s <- function(formula, data, family = "gaussian", argvals = NULL, var = FA
     massmm= as.list(massmm)
     for(i in 1:length(argvals)){
       massmm[[i]]= unimm(i)
-      print(massmm[[i]])
+      if(!(silent)) print(massmm[[i]])
     }
     # massmm <- lapply(argvals, unimm)
   }
@@ -115,7 +119,12 @@ lfosr3s <- function(formula, data, family = "gaussian", argvals = NULL, var = FA
   ##########################################################################################
   if(silent == FALSE) print("Step 2: Smoothing")
   
-  nknots <- min(round(L/4), 35) ## number of knots for penalized splines smoothing
+  if (is.null(knots_manual)){
+    nknots <- min(round(L/4), 35) ## number of knots for penalized splines smoothing
+  } else {
+    nknots <- knots_manual
+  }
+  message(paste0("number of knots for penalized splines smoothing = ", nknots))
   if(analytic == TRUE){ ## we need smoothing parameter, spline basis and penalty matrix for analytic inference
     p <- nrow(betaTilde) ## number of fixed effects parameters
     betaHat <- matrix(NA, nrow = p, ncol = L)

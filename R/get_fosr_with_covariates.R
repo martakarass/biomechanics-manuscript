@@ -1,13 +1,15 @@
 #' @description 
-#' Script to estimate MFDA models with covariate
+#' Script to estimate 
+#' multilevel functional regression models with functional outcome.
 #' 
 #' @author 
-#' Marcos Matabuena
+#' Marcos Matabuena, Marta Karas
 
 rm(list = ls())
 library(here)
 library(fda.usc)
 library(tidyverse)
+library(gridExtra)
 select <- dplyr::select
 filter <- dplyr::filter
 separate <- tidyr::separate
@@ -87,7 +89,7 @@ for(i in 1:19){  # i <- 1
   matriz[contar:(contar+79),2]= rep(gender[i],40)
   # matriz[contar:(contar+79),3]= c(rep(1,40), rep(2,40)) ## FIXED HERE!!
   # HT == 0, CR == 1
-  matriz[contar:(contar+79),3]= c(rep(0,40), rep(1,40))
+  matriz[contar:(contar+79),3]= c(rep(1,40), rep(0,40))
   matriz[contar:(contar+79),4:103] = lista[[i]] 
   contar= contar+80
 }
@@ -104,7 +106,7 @@ dim(datas$Y)
 
 t1 <- Sys.time()
 fit_lfosr3s <- lfosr3s(formula = Y ~ Gender + Race + (1 | id), data = datas, 
-                       var = TRUE, analytic = TRUE, parallel = FALSE, silent = FALSE)
+                       var = TRUE, analytic = TRUE, parallel = FALSE, silent = TRUE)
 t2 <- Sys.time()
 t2-t1
 
@@ -124,88 +126,51 @@ str(fit_lfosr3s$betaHat.var)
 datosindividualesKnee_Xstride2$axis <- "x" 
 datosindividualesKnee_Ystride2$axis <- "y" 
 datosindividualesKnee_Zstride2$axis <- "z" 
-plt_df <- rbind(
+dat_df <- rbind(
   datosindividualesKnee_Xstride2,
   datosindividualesKnee_Ystride2,
   datosindividualesKnee_Zstride2
+) %>% filter(
+  Race %in% c("HT1 post", "HT2 post", "CR1 pre", "CR1 post")
 )
 
-# add gender info 
+# format data frame
 strength_sub <- strength %>% select(SubjIdx, Gender)
-plt_df <- plt_df %>% left_join(strength_sub, by = "SubjIdx")
-
-# define RaceType levels
 RaceType_levels <- c("CR", "HT")
-# define Gender levels
-Gender_levels <- c("female", "male")
-# SubjIdx  levels
-SubjIdx_levels <- 1 : 19
-
-# add RaceType, RacePart info 
-plt_df <- 
-  plt_df %>% 
+Gender_levels   <- c("female", "male")
+SubjIdx_levels  <- 1 : 19
+dat_df <- 
+  dat_df %>% 
+  left_join(strength_sub, by = "SubjIdx") %>%
   separate(Race, sep = " ", into = c("RaceType", "RacePart"), remove = FALSE) %>%
   mutate(RaceIdx = substr(RaceType, 3, 4)) %>%
   mutate(RaceType = substr(RaceType, 0, 2)) %>%
-  # [former]
-  mutate(gender = ifelse(Gender == "male", 1, 0)) %>%
-  mutate(race = ifelse(RaceType == "CR", 1, 0)) 
-  # [mine]
-  # mutate(RaceType_fct = factor(RaceType, levels = RaceType_levels)) %>%
-  # mutate(Gender_fct = factor(Gender, levels = Gender_levels)) %>%
-  # mutate(SubjIdx_fct = factor(SubjIdx, levels = SubjIdx_levels))
-head(plt_df)
+  mutate(RaceType_fct = factor(RaceType, levels = RaceType_levels)) %>%
+  mutate(Gender_fct = factor(Gender, levels = Gender_levels)) %>%
+  mutate(SubjIdx_fct = factor(SubjIdx, levels = SubjIdx_levels))
 
-
-# define unique values of fit 
-axis_unq <- sort(unique(plt_df$axis))
-axis_tmp <- "z"
-Race_sub_tmp <- c("HT1 post", "HT2 post", "CR1 pre", "CR1 post")
-
-fit_df_tmp    <- plt_df %>% filter(axis == axis_tmp, Race %in% Race_sub_tmp)
-fit_Y_tmp     <- fit_df_tmp %>% select(starts_with("V")) %>% as.matrix()
-fit_dat_tmp   <- fit_df_tmp %>% select(-starts_with("V"))
-fit_dat_tmp$Y <- fit_Y_tmp
-
-dim(fit_dat_tmp)
-dim(fit_dat_tmp$Y)
-
-# t1 <- Sys.time()
-# fit_tmp <- lfosr3s(formula = Y ~ Gender_fct + RaceType_fct + (1 | SubjIdx_fct), 
-#                    data = fit_dat_tmp, 
-#                    var = TRUE, analytic = TRUE, parallel = FALSE, silent = FALSE)
-# t2 <- Sys.time()
-# t2-t1
-
-t1 <- Sys.time()
-fit_tmp <- lfosr3s(formula = Y ~ gender + race + (1 | SubjIdx),
-                   data = fit_dat_tmp,
-                   var = TRUE, analytic = TRUE, parallel = FALSE, silent = FALSE)
-t2 <- Sys.time()
-t2-t1
-
-
-plot(fdata(fit_tmp$betaHat[1,]), main="Intercept")
-plot(fdata(fit_tmp$betaHat[2,]), main="Gender (male=1, female=0)")
-plot(fdata(fit_tmp$betaHat[3,]), main="Race (CR=1, HT=0)")
-print(fit_tmp$betaHat)
-str(fit_tmp$betaHat.var)
-
-
-fit_tmp <- lfosr3s(formula = Y ~ gender + race + (1 | SubjIdx),
-                   data = fit_dat_tmp,
-                   var = TRUE, analytic = TRUE, parallel = FALSE, silent = FALSE)
-fit_tmp$betaHat.var
-# use bootstrap methodology 
-# boot CI 
-
-
-
-
-
-
-
-
+# fit for each axis separately 
+axis_unq <- sort(unique(dat_df$axis))
+for (axis_tmp in axis_unq){
+  message(paste0("axis = ", axis_tmp))
+  # make data frame with data specific to this loop iteration
+  dat_df_tmp    <- dat_df %>% filter(axis == axis_tmp)     
+  fit_Y_tmp     <- dat_df_tmp %>% select(starts_with("V")) %>% as.matrix()
+  fit_dat_tmp   <- dat_df_tmp %>% select(-starts_with("V"))
+  fit_dat_tmp$Y <- fit_Y_tmp
+  # fit model
+  t1 <- Sys.time()
+  fit_tmp <- lfosr3s(formula = Y ~ Gender_fct + RaceType_fct + (1 | SubjIdx_fct),
+                     data = fit_dat_tmp,
+                     var = TRUE, analytic = TRUE, parallel = FALSE, silent = TRUE,
+                     knots_manual = 5)
+  t2 <- Sys.time()
+  print(t2-t1)
+  # save fit object
+  fit_fname <- paste0("fit_result_lfosr3s_", axis_tmp, ".rds")
+  fit_fpath <- file.path(here(), "results_objects", fit_fname)
+  saveRDS(fit_tmp, fit_fpath)
+}
 
 
 

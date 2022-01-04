@@ -34,8 +34,15 @@ plot.FUI <- function(r, fit_tmp, name = NULL){
                              lower.joint = fit_tmp$betaHat[r,] - fit_tmp$qn[r]*sqrt(diag(fit_tmp$betaHat.var[,,r])),
                              upper.joint = fit_tmp$betaHat[r,] + fit_tmp$qn[r]*sqrt(diag(fit_tmp$betaHat.var[,,r])))
   p.CI <- ggplot() +
-    theme_bw() +
-    theme(plot.title = element_text(hjust = 0.5, face = "bold")) +
+    theme_bw(base_size = 12) + 
+    theme(legend.background = element_rect(fill = alpha('white', 0.6), color = NA),
+          panel.grid.major = element_line(size = 0.2),
+          # panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.border = element_blank(),
+          strip.background = element_rect(fill = alpha('white', 0.1), color = NA),
+          strip.text = element_text(angle = 0, hjust = 0),
+          plot.title = element_text(hjust = 0.5, face = "bold")) + 
     geom_ribbon(aes(x = s, ymax = upper.joint, ymin = lower.joint), data = beta.hat.plt, fill = "gray30", alpha = 0.2) +
     geom_ribbon(aes(x = s, ymax = upper, ymin = lower), data = beta.hat.plt, fill = "gray10", alpha = 0.4) +
     geom_line(aes(x = s, y = beta, color = "Estimate"), data = beta.hat.plt, alpha = 1, lty = 5) +
@@ -46,7 +53,7 @@ plot.FUI <- function(r, fit_tmp, name = NULL){
   if(r == 1){
     p.CI <- p.CI + labs(x = "Stride phase", y = expression(beta[0](s)), title = var_name[r]) +
       theme(legend.title=element_blank(),
-            legend.position = c(0.15, 0.99),
+            legend.position = c(0.05, 1),
             legend.justification = c("left", "top"),
             legend.box.just = "right",
             legend.margin = margin(0, 0, 0, 0),

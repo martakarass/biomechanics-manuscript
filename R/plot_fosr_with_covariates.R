@@ -23,9 +23,9 @@ library(cowplot)
 here() 
 
 
-# Function to plot 
+# Function to generate plot, sourced from Cui et al. (2021), slightly modified
 plot.FUI <- function(r, fit_tmp, name = NULL){
-  var_name <- c("Intercept", "Gender (1=male, 0=female)", "Race (1=HIIT, 0=CR)")
+  var_name <- c("Intercept", "Gender (1=Male, 0=Female)", "Race (1=HIIT, 0=CR)")
   decimal <- c(0,0,0)
   beta.hat.plt <- data.frame(s = seq(1, ncol(fit_tmp$betaHat), length.out = ncol(fit_tmp$betaHat)), 
                              beta = fit_tmp$betaHat[r,],

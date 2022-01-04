@@ -130,9 +130,10 @@ dat_df <- rbind(
   datosindividualesKnee_Xstride2,
   datosindividualesKnee_Ystride2,
   datosindividualesKnee_Zstride2
-) %>% filter(
-  Race %in% c("HT1 post", "HT2 post", "CR1 pre", "CR1 post")
 )
+# ) %>% filter(
+#   Race %in% c("HT1 post", "HT2 post", "CR1 pre", "CR1 post")
+# )
 
 # format data frame
 strength_sub <- strength %>% select(SubjIdx, Gender)

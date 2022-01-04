@@ -71,6 +71,7 @@ plot.FUI <- function(r, fit_tmp, name = NULL){
 }
 
 
+# Generate plots for 
 axis_unq <- c("x", "y", "z")
 for (axis_tmp in axis_unq){
   message(paste0("axis = ", axis_tmp))

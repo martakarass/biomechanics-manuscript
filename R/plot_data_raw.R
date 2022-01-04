@@ -179,10 +179,10 @@ plt_df <- rbind(
 
 # define list of race combinations
 race_comb_list <- list(
-  c("HT1 pre", "HT2 pre"),
-  c("HT1 post", "HT2 post"),
-  c("CR1 pre", "CR2 pre"),
-  c("CR1 post", "CR2 post")
+  c("HT1 post", "HT2 post")
+  # c("HT1 pre", "HT2 pre"),
+  # c("CR1 pre", "CR2 pre"),
+  # c("CR1 post", "CR2 post")
 )
 
 for (comb_tmp in race_comb_list){ # comb_tmp <- c("HT1 post", "HT2 post")

@@ -31,16 +31,14 @@ here()
 # ------------------------------------------------------------------------------
 
 # read raw data 
-# stride
 dat_Knee_Xstride2 <- readRDS(file.path(here(), "data", "Knee_Xstride_anonym.rds")) 
 dat_Knee_Ystride2 <- readRDS(file.path(here(), "data", "Knee_Ystride_anonym.rds")) 
 dat_Knee_Zstride2 <- readRDS(file.path(here(), "data", "Knee_Zstride_anonym.rds")) 
 
+# combine data
 dat_Knee_Xstride2 <- dat_Knee_Xstride2 %>% mutate(axis = "x")
 dat_Knee_Ystride2 <- dat_Knee_Ystride2 %>% mutate(axis = "y")
 dat_Knee_Zstride2 <- dat_Knee_Zstride2 %>% mutate(axis = "z")
-
-# combine data
 dat_all <- rbind(
   dat_Knee_Xstride2,
   dat_Knee_Ystride2,
@@ -56,6 +54,7 @@ dat_all <- rbind(
 race_unq <- sort(unique(dat_all$Race))
 axis_unq <- sort(unique(dat_all$axis))
 
+table(dat_all$Race)
 # race_tmp <- "CR1 pre"
 # axis_tmp <- "x"
 

@@ -12,8 +12,6 @@
 
 rm(list = ls())
 library(here)
-# library(readr)
-# library(fda.usc)
 library(tidyverse)
 library(I2C2)
 library(data.table)

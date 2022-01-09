@@ -72,8 +72,6 @@ for (race_tmp in race_unq){
     I2C2_out_df <- as.data.frame(I2C2_out[1:3])
     I2C2_out_df$Race = race_tmp
     I2C2_out_df$Axis = axis_tmp
-    # I2C2_out_df$MovementPhase = "stride"
-    # I2C2_out_df$MeasurementLocation = "knee"
     # append results    
     I2C2_out_df_ALL <- rbind(I2C2_out_df_ALL, I2C2_out_df)
   }

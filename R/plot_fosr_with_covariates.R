@@ -2,7 +2,7 @@
 #' Script to plot estimates and CIs of fixed effects from 
 #' multilevel functional regression with functional outcome.
 #' 
-#' The code is heavily based on plotting code published with Cui et al. (2021).  
+#' The code reuses plotting code published with Cui et al. (2021).  
 #' 
 #' @references
 #' Erjia Cui, Andrew Leroux, Ekaterina Smirnova, Ciprian M. Crainiceanu (2021) 

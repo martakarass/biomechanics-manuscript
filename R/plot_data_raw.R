@@ -23,21 +23,9 @@ here()
 # ------------------------------------------------------------------------------
 
 # read raw data 
-# stride
 datosindividualesKnee_Xstride2 <- readRDS(file.path(here(), "data", "Knee_Xstride_anonym.rds"))
 datosindividualesKnee_Ystride2 <- readRDS(file.path(here(), "data", "Knee_Ystride_anonym.rds"))
 datosindividualesKnee_Zstride2 <- readRDS(file.path(here(), "data", "Knee_Zstride_anonym.rds"))
-# swing 
-datosindividualesKnee_Xswing2 <- readRDS(file.path(here(), "data", "Knee_Xswing_anonym.rds"))  
-datosindividualesKnee_Yswing2 <- readRDS(file.path(here(), "data", "Knee_Yswing_anonym.rds")) 
-datosindividualesKnee_Zswing2 <- readRDS(file.path(here(), "data", "Knee_Zswing_anonym.rds"))  
-
-# look up some variable stats
-dim(datosindividualesKnee_Zswing2)
-table(datosindividualesKnee_Zswing2$Step)
-table(datosindividualesKnee_Zswing2$SubjId)
-table(datosindividualesKnee_Zswing2$Race)
-datosindividualesKnee_Xstride2[, 100:104]
 
 
 # ------------------------------------------------------------------------------
@@ -180,9 +168,6 @@ plt_df <- rbind(
 # define list of race combinations
 race_comb_list <- list(
   c("HT1 post", "HT2 post")
-  # c("HT1 pre", "HT2 pre"),
-  # c("CR1 pre", "CR2 pre"),
-  # c("CR1 post", "CR2 post")
 )
 
 for (comb_tmp in race_comb_list){ # comb_tmp <- c("HT1 post", "HT2 post")

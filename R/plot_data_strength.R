@@ -104,7 +104,7 @@ var_name_levels <- c(
 
 #' @TODO label HER, HIR properly 
 var_name_labels <- c(
-  'Hip Abduction ',
+  'Hip Abduction',
   'Hip Adduction',
   'HER', # ?? 
   'HIR', # ?? 

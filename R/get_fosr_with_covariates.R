@@ -30,9 +30,9 @@ datosindividualesKnee_Xstride2 <- readRDS(file.path(here(), "data", "Knee_Xstrid
 datosindividualesKnee_Ystride2 <- readRDS(file.path(here(), "data", "Knee_Ystride_anonym.rds"))
 datosindividualesKnee_Zstride2 <- readRDS(file.path(here(), "data", "Knee_Zstride_anonym.rds"))
 
-# read strength data 
-strength_path <- file.path(here(), "data", "strength_anonym.rds")
-strength <- readRDS(strength_path)
+# read demog data 
+demog_path <- file.path(here(), "data", "demog_anonym.rds")
+demog <- readRDS(demog_path)
 
 
 # ------------------------------------------------------------------------------
@@ -55,13 +55,13 @@ dat_df <- filter(dat_df, Race %in% c("CR1 post", "HT1 post"))
 table(dat_df$Race)
 
 # format data frame
-strength_sub <- strength %>% select(SubjIdx, Gender)
+demog_sub <- demog %>% select(SubjIdx, Gender)
 RaceType_levels <- c("CR", "HT")
 Gender_levels   <- c("female", "male")
 SubjIdx_levels  <- 1 : 19
 dat_df <- 
   dat_df %>% 
-  left_join(strength_sub, by = "SubjIdx") %>%
+  left_join(demog_sub, by = "SubjIdx") %>%
   separate(Race, sep = " ", into = c("RaceType", "RacePart"), remove = FALSE) %>%
   mutate(RaceType = substr(RaceType, 0, 2)) %>%
   mutate(RaceType_fct = factor(RaceType, levels = RaceType_levels)) %>%

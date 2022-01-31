@@ -18,7 +18,7 @@ fnames <- c(
   "Knee_Ystride.RDS",
   "Knee_Zstride.RDS"
 )
-fdir <- "/Users/martakaras/Dropbox/BIOMECHANICSNEW"
+fdir <-  "/Users/martakaras/Documents/data_biomechanics"
 
 # define map between: 
 # (a) initials derived from "archivo" column  

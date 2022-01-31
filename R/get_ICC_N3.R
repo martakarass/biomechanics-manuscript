@@ -60,6 +60,10 @@ L1 = Q = 19
 L2 = J = 2
 L3 = 20
 
+# ps_X = matrix(0,N1,I)
+# ps_U = matrix(0,L2*N2,I)  
+# ps_W = matrix(0,L2*L3*N1,I)
+
 
 comb_tmp <-  c("HT1 post", "HT2 post")
 axis_unq <- sort(unique(dat_all$axis))
@@ -96,6 +100,7 @@ for (axis_tmp in axis_unq){ # axis_tmp <- "z"
   # fit N3 model
   tryCatch(
     {
+      # Y = obj_Y_tmp; smooth.y = TRUE; alg.y = 'smoothspline'; smooth.h = FALSE; bf = 5; Q = NULL; J = NULL
       fit_out <-  threenest(Y = obj_Y_tmp, L1 = L1, L2 = L2, L3 = L3, smooth.y = TRUE, alg.y = 'smoothspline')
       # pull ICC
       out_df_tmp$ICC <- fit_out$ICC

@@ -245,15 +245,12 @@ threenest <- function(Y, L1, L2, L3, smooth.h = FALSE,
     
     svdd=svd(D)
     ps_i = svdd$v%*%diag(1/svdd$d*(svdd$d>0.0001))%*%t(svdd$u) %*% rs_i
-    # @MK added 2022-01-30
-    # dim(ps_i)
-    # [1] 860   1
+
     ps_X[,i] = ps_i[1:N1,]
     ps_U[,i] = ps_i[(N1+1):(N1+N2*L2),]
-    ps_W[,i] = ps_i[(N1+N2+1):(N1+N2+L2*L3*N1),]
-    # @MK added 2022-01-30
-    # range((N1+N2+1):(N1+N2+L2*L3*N1))
-    # 41 840
+    # ps_W[,i] = ps_i[(N1+N2+1):(N1+N2+L2*L3*N1),]
+    ps_W[,i] = ps_i[(N1+N2*L2+1):(N1+N2*L2+L2*L3*N3),]
+
   }
   
   # if ( Phi_U[k,] %*% phi2[,k]  < 0) 

@@ -45,3 +45,4 @@ vignettes/*.pdf
 #data/
 
 R/OLD/
+.DS_Store

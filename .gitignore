@@ -46,3 +46,6 @@ vignettes/*.pdf
 
 R/OLD/
 .DS_Store
+
+R/anonym_data_demog.R
+R/anonym_data_raw.R

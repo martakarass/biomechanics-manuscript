@@ -24,6 +24,6 @@ For practitioners, potentially most useful R code scripts and result files are r
 - Plot raw subsecond-level data of knee location trajectories. --  [/R/plot_data_raw.R](https://github.com/martakarass/biomechanics-manuscript/blob/main/R/plot_data_raw.R) 
 
 - Plot scatterplots of functional scores 1 and 2 of level 1, 2 and 3, calculated with
-three-way nested multilevel function-on-scalar regression models.  [/R/plot_N3_scores.R](https://github.com/martakarass/biomechanics-manuscript/blob/main/R/plot_N3_scores.R) 
+three-way nested multilevel function-on-scalar regression models. --  [/R/plot_N3_scores.R](https://github.com/martakarass/biomechanics-manuscript/blob/main/R/plot_N3_scores.R) 
 
 - Plot fixed effects estimates and confidence intervals estimated with multilevel function-on-scalar regression with covariates. -- [/R/plot_fosr_with_covariates.R](https://github.com/martakarass/biomechanics-manuscript/blob/main/R/plot_fosr_with_covariates.R) 

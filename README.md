@@ -1,6 +1,8 @@
 # Biomechanics manuscript
 
-This repository accompanies the manuscript preprint "Estimating knee movement patterns of recreational runners across training sessions using multilevel functional regression model" and contains both data and the R code needed to reproduce all analyses and results included in the manuscript. 
+This repository accompanies the manuscript preprint "Estimating knee movement patterns of recreational runners across training sessions using multilevel functional regression model".
+
+It contains both data and the R code needed to reproduce all analyses and results included in the manuscript. 
 
 
 # Repository navigation

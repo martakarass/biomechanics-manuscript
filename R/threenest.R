@@ -1,23 +1,26 @@
-##########################################################################################
-## Function for fitting N3 model based on the input data
-## smooth.y: if TRUE, conduct smoothing on the raw data 
-## Y: raw data; the data is stored in a list of length Q where each element is of dimension q by n and q is part of the whole data dimension
-##########################################################################################
-
-#' Coefficient of intra-class correlation  (ICC) 
+#' Coefficient of intra-class correlation  (ICC).
 #' 
-#' Estimating the coefficient of intra-class correlation (ICC). 
+#' Fit three-way nested multilevel function-on-scalar regression and estimate the 
+#' coefficient of intra-class correlation (ICC). 
+#' 
+#' Based on the code attached to Shou et al. (2015), with some alternations 
+#' introduced by MK and MM to make the code run without an error. 
 #'
-#' @param Y 
+#' @param Y raw data; the data is stored in a list of length Q where each element is of dimension q by n and q is part of the whole data dimension
 #' @param L1 
 #' @param L2 
 #' @param L3 
 #' @param smooth.h 
-#' @param smooth.y 
+#' @param smooth.y if TRUE, conduct smoothing on the raw data 
 #' @param alg.y 
 #' @param bf 
 #' @param Q 
 #'
+#'@references
+#' Shou, H., Zipunnikov, V., Crainiceanu, C.M. and Greven, S. (2015), Structured 
+#' functional principal component analysis. Biom, 71: 247-257. 
+#' https://doi-org.ezp-prod1.hul.harvard.edu/10.1111/biom.12236
+#' 
 #' @return
 #' @export
 #'

@@ -19,15 +19,10 @@ library(here)
 library(tidyverse)
 library(cowplot)
 library(ggsci)
+library(stargazer)
 select <- dplyr::select
 filter <- dplyr::filter
 separate <- tidyr::separate
-
-# open the project in RStudio via clicking biomechanics-manuscript.Rproj
-# to have here() pointing to the project directory path 
-here() 
-
-
 
 # ------------------------------------------------------------------------------
 #  READ DATA   -----------------------------------------------------------------
@@ -51,14 +46,14 @@ gender_labels <- c("F", "M")
 SubjId_levels <- sort(unique(demog$SubjId))
 
 
-
 # ------------------------------------------------------------------------------
-#  PLOT: Level 1   -------------------------------------------------------------
+#  TABLE: Level 1   -------------------------------------------------------------
 # ------------------------------------------------------------------------------
 
-plot_list <- list()
+df_all <- data.frame()
+
 for (i in 1 : 3){
-  # i <- 1
+  # i <- 2
   axis_tmp <-  axis_unq[i]
   
   # axis-specific 
@@ -74,51 +69,28 @@ for (i in 1 : 3){
   sc_mat <- fit_obj$results$xi$psx
   sc_df <- as.data.frame(sc_mat)
   colnames(sc_df) <- paste0("Id", 1 : 19)
-  # sc_df$score_num <- rep(paste0("score", 1 : 20), 2)
-  # sc_df$visit <- rep(c(1,2), each = 20)
   sc_df$score_num <- paste0("score", 1 : 20)
-  plt_df <- 
+  tbl_df <- 
     sc_df %>% 
     pivot_longer(cols = -c(score_num), names_to = "SubjId") %>%
     filter(score_num %in% paste0("score", 1 : 2)) %>%
     pivot_wider(values_from = value, names_from = score_num) %>%
     inner_join(demog, by = "SubjId") %>%
     mutate(gender_fct = factor(Gender, levels = gender_levels, labels = gender_labels),
-           SubjId_fct = factor(SubjId, levels = SubjId_levels)) 
-  # plt_df
+           SubjId_fct = factor(SubjId, levels = SubjId_levels)) %>%
+    select(
+      score1, score2, Gender
+    )
+  tbl_df$axis <- axis_tmp
+  tbl_df$level <- "Level 1"
   
-  text_y <- max(plt_df$score2) + diff(range(plt_df$score2)) * 0.2
-  text_x <- min(plt_df$score1) + diff(range(plt_df$score1)) * 0.1
-  plt <- 
-    ggplot(plt_df, aes(x = score1, y = score2, color = SubjId_fct)) + 
-    geom_text(aes(label = as.character(gender_fct)), fontface = "bold") + 
-    theme_bw(base_size = 9) + 
-    theme(legend.background = element_rect(fill = alpha('white', 0.6), color = NA),
-          panel.grid.major = element_line(size = 0.2),
-          # panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          panel.border = element_rect(colour = "grey70", fill = NA, size = 0.3),
-          strip.background = element_rect(fill = alpha('white', 0.1), color = NA),
-          strip.text = element_text(angle = 0, hjust = 0),
-          plot.title = element_text(face = "bold") ,
-          legend.position="none"
-    ) + 
-    labs(title = paste0("Measurement axis: ", axis_tmp),
-         x = "Score 1", 
-         y = "Score 2",
-         shape = "Gender"
-    ) + 
-    annotate(geom="text", x = text_x, y = text_y, label = "Level 1", size = 3, fontface =2)
-
-  plot_list[[length(plot_list) + 1]] <- plt
+  df_all <- rbind(df_all, tbl_df)
 }
 
 
 # ------------------------------------------------------------------------------
-#  PLOT: Level 2   -------------------------------------------------------------
+#  TABLE: Level 2   -------------------------------------------------------------
 # ------------------------------------------------------------------------------
-
-# plot_list <- list()
 
 for (i in 1 : 3){
   # i <- 1
@@ -139,47 +111,26 @@ for (i in 1 : 3){
   colnames(sc_df) <- paste0("Id", 1 : 19)
   sc_df$score_num <- rep(paste0("score", 1 : 20), 2)
   sc_df$visit <- rep(c(1,2), each = 20)
-  plt_df <- 
+  tbl_df <- 
     sc_df %>% 
     pivot_longer(cols = -c(score_num, visit), names_to = "SubjId") %>%
     filter(score_num %in% paste0("score", 1 : 2)) %>%
     pivot_wider(values_from = value, names_from = score_num) %>%
     inner_join(demog, by = "SubjId") %>%
     mutate(gender_fct = factor(Gender, levels = gender_levels, labels = gender_labels),
-           SubjId_fct = factor(SubjId, levels = SubjId_levels)) 
-  # plt_df
+           SubjId_fct = factor(SubjId, levels = SubjId_levels)) %>%
+    select(
+      score1, score2, Gender
+    )
+  tbl_df$axis <- axis_tmp
+  tbl_df$level <- "Level 2"
   
-  text_y <- max(plt_df$score2) + diff(range(plt_df$score2)) * 0.2
-  text_x <- min(plt_df$score1) + diff(range(plt_df$score1)) * 0.1
-  plt <- 
-    ggplot(plt_df, aes(x = score1, y = score2, color = SubjId_fct)) + 
-    geom_text(aes(label = as.character(gender_fct)), fontface = "bold") + 
-    theme_bw(base_size = 9) + 
-    theme(legend.background = element_rect(fill = alpha('white', 0.6), color = NA),
-          panel.grid.major = element_line(size = 0.2),
-          # panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          panel.border = element_rect(colour = "grey70", fill = NA, size = 0.3),
-          legend.position = "none",
-          strip.background = element_rect(fill = alpha('white', 0.1), color = NA),
-          strip.text = element_text(angle = 0, hjust = 0),
-          plot.title = element_text(face = "bold") 
-    ) + 
-    labs(#title = title = "",
-         x = "Score 1", 
-         y = "Score 2",
-         shape = "Gender"
-    ) + 
-    annotate(geom="text", x = text_x, y = text_y, label = "Level 2", size = 3, fontface =2)
-  # plt
-
-  plot_list[[length(plot_list) + 1]] <- plt
+  df_all <- rbind(df_all, tbl_df)
 }
 
 
-
 # ------------------------------------------------------------------------------
-#  PLOT: Level 3   -------------------------------------------------------------
+#  TABLE: Level 3   -------------------------------------------------------------
 # ------------------------------------------------------------------------------
 
 for (i in 1 : 3){
@@ -205,53 +156,75 @@ for (i in 1 : 3){
   sc_df$visit <- rep(c(1,2), each = 400)
   sc_df$stride <- rep(c(1:40), each = 20)
 
-  plt_df <- 
+  tbl_df <- 
     sc_df %>% 
     pivot_longer(cols = -c(score_num, visit, stride), names_to = "SubjId") %>%
     filter(score_num %in% paste0("score", 1 : 2)) %>%
     pivot_wider(values_from = value, names_from = score_num) %>%
     inner_join(demog, by = "SubjId") %>%
     mutate(gender_fct = factor(Gender, levels = gender_levels, labels = gender_labels),
-           SubjId_fct = factor(SubjId, levels = SubjId_levels)) 
-  # plt_df
+           SubjId_fct = factor(SubjId, levels = SubjId_levels)) %>%
+    select(
+      score1, score2, Gender
+    )
+  tbl_df$axis <- axis_tmp
+  tbl_df$level <- "Level 3"
   
-  text_y <- max(plt_df$score2) + diff(range(plt_df$score2)) * 0.2
-  text_x <- min(plt_df$score1) + diff(range(plt_df$score1)) * 0.1
-  plt <- 
-    ggplot(plt_df, aes(x = score1, y = score2, color = SubjId_fct)) + 
-    geom_text(aes(label = as.character(gender_fct))) + 
-    theme_bw(base_size = 9) + 
-    theme(legend.background = element_rect(fill = alpha('white', 0.6), color = NA),
-          panel.grid.major = element_line(size = 0.2),
-          # panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          panel.border = element_rect(colour = "grey70", fill = NA, size = 0.3),
-          legend.position = "none",
-          strip.background = element_rect(fill = alpha('white', 0.1), color = NA),
-          strip.text = element_text(angle = 0, hjust = 0),
-          plot.title = element_text(face = "bold") 
-    ) + 
-    labs(#title = "",
-         x = "Score 1", 
-         y = "Score 2",
-         shape = "Gender"
-    ) + 
-    annotate(geom="text", x = text_x, y = text_y, label = "Level 3", size = 3, fontface =2)
-  # plt
-  
-  plot_list[[length(plot_list) + 1]] <- plt
+  df_all <- rbind(df_all, tbl_df)
 }
 
 
 # ------------------------------------------------------------------------------
-#  PLOT: combine and save   ----------------------------------------------------
+#  TABLE: combine, aggregate and format  ---------------------------------------
 # ------------------------------------------------------------------------------
 
-plt_all <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv", byrow = FALSE)
-path_tmp <- file.path(here(), "results_figures", paste0("scores_level_all.jpeg"))
-save_plot(filename = path_tmp, plot = plt_all, base_width = (3 * 2.2), base_height = (3 * 2.2))
+dim(df_all)
 
+df_all_agg <- 
+  df_all %>%
+  group_by(level, axis, Gender) %>%
+  summarise(
+    cnt = n(),
+    score1_mean = mean(score1),
+    score1_sd = sd(score1),
+    score2_mean = mean(score2),
+    score2_sd = sd(score2),
+  ) %>%
+  mutate(
+    score1_sd_of_mean = score1_sd/sqrt(cnt),
+    score2_sd_of_mean = score2_sd/sqrt(cnt),
+    score1_ci_lo = score1_mean - 1.96 * score1_sd_of_mean,
+    score1_ci_up = score1_mean + 1.96 * score1_sd_of_mean,
+    score2_ci_lo = score2_mean - 1.96 * score2_sd_of_mean,
+    score2_ci_up = score2_mean + 1.96 * score2_sd_of_mean,
+    # score1_f = paste0(sprintf(score1_mean, fmt = '%#.1f'), " (", sprintf(score1_sd_of_mean, fmt = '%#.1f'), ")"),
+    # score2_f = paste0(sprintf(score2_mean, fmt = '%#.1f'), " (", sprintf(score2_sd_of_mean, fmt = '%#.1f'), ")")
+    score1_f = paste0(sprintf(score1_mean, fmt = '%#.1f'), " [", sprintf(score1_ci_lo, fmt = '%#.1f'), ", ", sprintf(score1_ci_up, fmt = '%#.1f'), "]"),
+    score2_f = paste0(sprintf(score2_mean, fmt = '%#.1f'), " [", sprintf(score2_ci_lo, fmt = '%#.1f'), ", ", sprintf(score2_ci_up, fmt = '%#.1f'), "]")
+  ) %>%
+  select(
+    level, axis, Gender,
+    score1_f,
+    score2_f
+  )
 
+df_all_agg_sc1 <- 
+  df_all_agg %>%
+  select(-score2_f) %>% 
+  pivot_wider(names_from = Gender, values_from = score1_f) %>%
+  mutate(score = "Score 1")
+df_all_agg_sc2 <- 
+  df_all_agg %>%
+  select(-score1_f) %>% 
+  pivot_wider(names_from = Gender, values_from = score2_f) %>%
+  mutate(score = "Score 2")
 
-
-
+df_all_agg_scs <-
+  df_all_agg_sc1 %>% 
+  rbind(df_all_agg_sc2) %>%
+  select(axis, level, score, everything()) %>%
+  arrange(axis, level, score) %>%
+  as.data.frame()
+df_all_agg_scs
+  
+stargazer(df_all_agg_scs, summary = FALSE)

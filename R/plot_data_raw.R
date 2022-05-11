@@ -9,6 +9,8 @@ rm(list = ls())
 library(here)
 library(fda.usc)
 library(tidyverse)
+library(ggsci)
+library(cowplot)
 select <- dplyr::select
 filter <- dplyr::filter
 separate <- tidyr::separate
@@ -26,6 +28,10 @@ here()
 datosindividualesKnee_Xstride2 <- readRDS(file.path(here(), "data", "Knee_Xstride_anonym.rds"))
 datosindividualesKnee_Ystride2 <- readRDS(file.path(here(), "data", "Knee_Ystride_anonym.rds"))
 datosindividualesKnee_Zstride2 <- readRDS(file.path(here(), "data", "Knee_Zstride_anonym.rds"))
+
+# read demog data 
+demog_path <- file.path(here(), "data", "demog_anonym.rds")
+demog <- readRDS(demog_path)
 
 
 # ------------------------------------------------------------------------------
@@ -99,5 +105,138 @@ fname_tmp <- paste0("raw_data_per_subject_", plot_label_tmp, ".jpeg")
 fpath_tmp <- file.path(here(), "results_figures", fname_tmp) 
 ggsave(filename = fpath_tmp, plot = plt, width = 20, height = 22, units = "cm")
 
+
+
+# ------------------------------------------------------------------------------
+# FUNCTIONAL MEAN, FUNCTIONAL SD 
+# ------------------------------------------------------------------------------
+
+# prepare data 
+# add info about axis (x,y,z) to each data set 
+datosindividualesKnee_Xstride2$axis <- "x" 
+datosindividualesKnee_Ystride2$axis <- "y" 
+datosindividualesKnee_Zstride2$axis <- "z" 
+dat_df <- rbind(
+  datosindividualesKnee_Xstride2,
+  datosindividualesKnee_Ystride2,
+  datosindividualesKnee_Zstride2
+)
+# filter to keep CR1 post HT1 post only
+dat_df <- filter(dat_df, Race %in% c("CR1 post", "HT1 post"))
+
+table(dat_df$Race)
+
+# format data frame
+demog_sub <- demog %>% select(SubjIdx, Gender)
+RaceType_levels <- c("HT", "CR")
+RaceType_labels <- c("HIIT", "MICR")
+Gender_levels   <- c("female", "male")
+Gender_labels   <- c("Female", "Male")
+SubjIdx_levels  <- 1 : 19
+plt_df <- 
+  dat_df %>% 
+  left_join(demog_sub, by = "SubjIdx") %>%
+  separate(Race, sep = " ", into = c("RaceType", "RacePart"), remove = FALSE) %>%
+  mutate(RaceType = substr(RaceType, 0, 2)) %>%
+  mutate(RaceType_fct = factor(RaceType, levels = RaceType_levels, labels = RaceType_labels)) %>%
+  mutate(Gender_fct = factor(Gender, levels = Gender_levels, labels = Gender_labels)) %>%
+  mutate(SubjIdx_fct = factor(SubjIdx, levels = SubjIdx_levels))
+
+# prepare plot frame
+plt_df_long <- 
+  plt_df %>%
+  pivot_longer(cols = starts_with("V")) %>%
+  mutate(
+    name = gsub("V", "", name),
+    name = as.numeric(name),
+    phase = (name - min(name))/(max(name) - min(name)),
+    phase = phase * 100,
+    obs_id = paste0(SubjId, "_", Race, "_", dimens, "_", Step),
+    obs_id = gsub(" ", "_", obs_id)
+  ) %>%
+  as.data.frame()
+
+
+# plot 
+plt_list <- list()
+for (axis_tmp in c("x", "y", "z")){ # axis_tmp <- "x"
+  print(axis_tmp)
+  plt1_df_long <- 
+    plt_df_long %>% 
+    filter(axis == axis_tmp) %>%
+    group_by(Gender_fct, name, phase) %>%
+    summarise(
+      value_mean = mean(value),
+      value_sd = sd(value),
+      value_75 = quantile(value, prob = 0.75),
+      value_25 = quantile(value, prob = 0.25)
+    ) %>%
+    ungroup()
+  plt1 <- 
+    ggplot(plt1_df_long, aes(x = phase, y = value_mean, color = Gender_fct, fill = Gender_fct)) +
+    theme_bw(base_size = 10) + 
+    theme(legend.background = element_rect(fill = alpha('white', 0.6), color = NA),
+          panel.grid.major = element_line(size = 0.2),
+          panel.grid.minor = element_blank(),
+          panel.border = element_blank(),
+          strip.background = element_rect(fill = alpha('white', 0.1), color = NA),
+          strip.text = element_text(angle = 0, hjust = 0),
+          plot.title = element_text(face = "bold")) + 
+    geom_ribbon(aes(x = phase, ymax = value_mean - value_sd, ymin = value_mean + value_sd), 
+                data = plt1_df_long, alpha = 0.2, inherit.aes = TRUE) +
+    geom_line(alpha = 1, lty = 5) +
+    labs(x = "Stride % cycle, t", 
+         y = "Knee location (t) mean +/- 1 SD",
+         color = "", fill = "") + 
+    scale_x_continuous(breaks = seq(0, 100, by = 25)) +
+    theme(legend.position = c(0.85, 0.75)) + 
+    labs(title = paste0("Measrurement axis: ", axis_tmp)) + 
+    scale_fill_simpsons() + scale_color_simpsons()
+  # plt1
+  plt_list[[length(plt_list) + 1]] <- plt1
+  
+  plt2_df_long <- 
+    plt_df_long %>% 
+    filter(axis == axis_tmp) %>%
+    group_by(RaceType_fct, name, phase) %>%
+    summarise(
+      value_mean = mean(value),
+      value_sd = sd(value),
+      value_75 = quantile(value, prob = 0.75),
+      value_25 = quantile(value, prob = 0.25)
+    ) %>%
+    ungroup()
+  plt2 <- 
+    ggplot(plt2_df_long, aes(x = phase, y = value_mean, color = RaceType_fct, fill = RaceType_fct)) +
+    theme_bw(base_size = 10) + 
+    theme(legend.background = element_rect(fill = alpha('white', 0.6), color = NA),
+          panel.grid.major = element_line(size = 0.2),
+          panel.grid.minor = element_blank(),
+          panel.border = element_blank(),
+          strip.background = element_rect(fill = alpha('white', 0.1), color = NA),
+          strip.text = element_text(angle = 0, hjust = 0),
+          plot.title = element_text(face = "bold")) + 
+    geom_ribbon(aes(x = phase, ymax = value_mean - value_sd, ymin = value_mean + value_sd), 
+                data = plt2_df_long, alpha = 0.2, inherit.aes = TRUE) +
+    geom_line(alpha = 1, lty = 5) +
+    labs(x = "Stride % cycle, t", 
+         y = "Knee location (t) mean +/- 1 SD",
+         color = "", fill = "") + 
+    scale_x_continuous(breaks = seq(0, 100, by = 25)) +
+    theme(legend.position = c(0.85, 0.75)) + 
+    scale_color_jama() + scale_fill_jama() 
+  # plt2
+  plt_list[[length(plt_list) + 1]] <- plt2
+}
+
+
+plt <- plot_grid(plotlist = plt_list, ncol = 2, align = "hv", byrow = TRUE)
+# plt
+
+# save plot to file
+fname_tmp <- paste0("raw_data_aggregated.jpeg")
+fpath_tmp <- file.path(here(), "results_figures", fname_tmp) 
+# ggsave(filename = fpath_tmp, plot = plt, width = 20, height = 22, units = "cm")
+save_plot(filename = fpath_tmp, plot = plt, base_width = 20, base_height = 22, units = "cm")
 
 

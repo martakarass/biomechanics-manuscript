@@ -85,7 +85,7 @@ axis_unq <- c("x", "y", "z")
 for (axis_tmp in axis_unq){ # axis_tmp <- "x"
   message(paste0("axis = ", axis_tmp))
   # pull precomputed model object
-  fit_fname <- paste0("fit_result_lfosr3s_", axis_tmp, ".rds")
+  fit_fname <- paste0("fit_result_lfosr3s_simpler_model_", axis_tmp, ".rds")
   fit_fpath <- file.path(here(), "results_objects", fit_fname)
   fit_tmp <- readRDS(fit_fpath)
   # generate and combine plots
@@ -96,6 +96,6 @@ for (axis_tmp in axis_unq){ # axis_tmp <- "x"
 }
 
 plt <- plot_grid(plotlist = plt_list, nrow = 3, align = "hv", byrow = TRUE)
-plt_fname <- paste0("fixed_effect_lfosr3s_allaxis.jpeg")
+plt_fname <- paste0("fixed_effect_lfosr3s_simpler_model_allaxis.jpeg")
 plt_fpath <- file.path(here(), "results_figures", plt_fname)
 save_plot(filename = plt_fpath, plot = plt, base_width = 10, base_height = 3.4 * 3)

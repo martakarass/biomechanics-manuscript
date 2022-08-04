@@ -19,7 +19,7 @@ library(tidyverse)
 
 # [MK]: replace with yours
 project_dir <- "/Users/martakaras/Dropbox/_PROJECTS/biomechanics-manuscript/"
-
+project_dir <- "~/Dropbox/Dropbox/biomechanics-manuscript"
 
 # ------------------------------------------------------------------------------
 #  READ FITTED OBJECT   --------------------------------------------------------
@@ -33,6 +33,22 @@ fit_obj <- readRDS(fpath_tmp)
 fit_obj
 str(fit_obj)
 
+
+par(mfrow= c(1,2))
+plot(fit_obj$results$phi[[1]][,1], ylim=c(-0.5,0.5))
+plot(fit_obj$results$phi[[1]][,2], ylim= c(-0.5,0.5))
+
+
+
+par(mfrow= c(1,2))
+plot(fit_obj$results$phi[[2]][,1], ylim=c(-0.2,0.2))
+plot(fit_obj$results$phi[[2]][,2], ylim= c(-0.2,0.2))
+
+
+
+par(mfrow= c(1,2))
+plot(fit_obj$results$phi[[3]][,1], ylim=c(-0.2,0.2))
+plot(fit_obj$results$phi[[3]][,2], ylim= c(-0.2,0.2))
 
 # ------------------------------------------------------------------------------
 #  TO RETRIEVE VARIANLE EXPLAINED   -----------------------------------------------------------------
@@ -50,7 +66,20 @@ varexp_lvl2 = lambda_i[[2]] / sum(lambda_i[[2]])
 varexp_lvl3 = lambda_i[[3]] / sum(lambda_i[[3]])
 
 # [MK]: Marcos, please double check if you agree the above is correct
+# yes, but please consider the accumulate variance explained also
 
+cumvarexp_lvl1= cumsum(varexp_lvl1)
+cumvarexp_lvl2= cumsum(varexp_lvl2)
+cumvarexp_lvl3= cumsum(varexp_lvl3)
+
+
+print(cumvarexp_lvl1)
+print(cumvarexp_lvl2)
+print(cumvarexp_lvl3)
+
+print(varexp_lvl1[1:2])
+print(varexp_lvl2[1:2])
+print(varexp_lvl3[1:2])
 
 # ------------------------------------------------------------------------------
 #  TO RETRIEVE FIRST FEW EIGENFUNCTIONS ----------------------------------------

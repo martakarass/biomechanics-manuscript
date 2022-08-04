@@ -7,13 +7,10 @@
 
 rm(list = ls())
 library(here)
-library(fda.usc)
 library(tidyverse)
-library(ggsci)
 library(cowplot)
-select <- dplyr::select
-filter <- dplyr::filter
-separate <- tidyr::separate
+library(ggsci)
+options(dplyr.summarise.inform = FALSE)
 
 # open the project in RStudio via clicking biomechanics-manuscript.Rproj
 # to have here() pointing to the project directory path 
@@ -88,12 +85,12 @@ plt <-
   facet_wrap(~ SubjIdx_fct, ncol = 4) + 
   scale_color_manual(breaks = c("x", "y", "z"),
                      values = c("blue", "red", "green"))  + 
-  labs(x = "Stride % cycle, t",  y = "Knee location (t)", color = "Measurement axis: ") + 
+  labs(x = "Stance phase %, t",  y = "Knee location (t)", color = "Measurement axis: ") + 
   theme_bw(base_size = 14) + 
   theme(legend.background = element_rect(fill = alpha('white', 0.6), color = NA),
         panel.grid.major = element_line(size = 0.2),  
         panel.grid.minor = element_blank(),
-        panel.border = element_blank(),
+        panel.border = element_rect(colour = "grey70", fill = NA, size = 0.3),
         legend.position = "bottom",
         strip.background = element_rect(fill = alpha('white', 0.1), color = NA),
         strip.text = element_text(angle = 0, hjust = 0)
@@ -128,8 +125,8 @@ table(dat_df$Race)
 
 # format data frame
 demog_sub <- demog %>% select(SubjIdx, Gender)
-RaceType_levels <- c("HT", "CR")
-RaceType_labels <- c("HIIT", "MICR")
+RaceType_levels <- c("CR", "HT")
+RaceType_labels <- c("MICR", "HIIT")
 Gender_levels   <- c("female", "male")
 Gender_labels   <- c("Female", "Male")
 SubjIdx_levels  <- 1 : 19
@@ -168,25 +165,29 @@ for (axis_tmp in c("x", "y", "z")){ # axis_tmp <- "x"
     summarise(
       value_mean = mean(value),
       value_sd = sd(value),
-      value_75 = quantile(value, prob = 0.75),
-      value_25 = quantile(value, prob = 0.25)
+      cnt = n()
     ) %>%
-    ungroup()
+    ungroup() %>%
+    mutate(
+      value_mean_ci_lo = value_mean - 1.96 * value_sd / sqrt(cnt),
+      value_mean_ci_up = value_mean + 1.96 * value_sd / sqrt(cnt)
+    )
   plt1 <- 
     ggplot(plt1_df_long, aes(x = phase, y = value_mean, color = Gender_fct, fill = Gender_fct)) +
     theme_bw(base_size = 10) + 
     theme(legend.background = element_rect(fill = alpha('white', 0.6), color = NA),
           panel.grid.major = element_line(size = 0.2),
           panel.grid.minor = element_blank(),
-          panel.border = element_blank(),
+          panel.border = element_rect(colour = "grey70", fill = NA, size = 0.3),
           strip.background = element_rect(fill = alpha('white', 0.1), color = NA),
           strip.text = element_text(angle = 0, hjust = 0),
           plot.title = element_text(face = "bold")) + 
-    geom_ribbon(aes(x = phase, ymax = value_mean - value_sd, ymin = value_mean + value_sd), 
+    # geom_ribbon(aes(x = phase, ymax = value_mean - value_sd, ymin = value_mean + value_sd), 
+    geom_ribbon(aes(x = phase, ymin = value_mean_ci_lo, ymax = value_mean_ci_up),
                 data = plt1_df_long, alpha = 0.2, inherit.aes = TRUE) +
     geom_line(alpha = 1, lty = 5) +
-    labs(x = "Stride % cycle, t", 
-         y = "Knee location (t) mean +/- 1 SD",
+    labs(x = "Stance phase %, t", 
+         y = "Knee location (t) mean +/- 95% CI",
          color = "", fill = "") + 
     scale_x_continuous(breaks = seq(0, 100, by = 25)) +
     theme(legend.position = c(0.85, 0.75)) + 
@@ -202,25 +203,28 @@ for (axis_tmp in c("x", "y", "z")){ # axis_tmp <- "x"
     summarise(
       value_mean = mean(value),
       value_sd = sd(value),
-      value_75 = quantile(value, prob = 0.75),
-      value_25 = quantile(value, prob = 0.25)
+      cnt = n()
     ) %>%
-    ungroup()
+    ungroup() %>%
+    mutate(
+      value_mean_ci_lo = value_mean - 1.96 * value_sd / sqrt(cnt),
+      value_mean_ci_up = value_mean + 1.96 * value_sd / sqrt(cnt)
+    )
   plt2 <- 
     ggplot(plt2_df_long, aes(x = phase, y = value_mean, color = RaceType_fct, fill = RaceType_fct)) +
     theme_bw(base_size = 10) + 
     theme(legend.background = element_rect(fill = alpha('white', 0.6), color = NA),
           panel.grid.major = element_line(size = 0.2),
           panel.grid.minor = element_blank(),
-          panel.border = element_blank(),
+          panel.border = element_rect(colour = "grey70", fill = NA, size = 0.3),
           strip.background = element_rect(fill = alpha('white', 0.1), color = NA),
           strip.text = element_text(angle = 0, hjust = 0),
           plot.title = element_text(face = "bold")) + 
-    geom_ribbon(aes(x = phase, ymax = value_mean - value_sd, ymin = value_mean + value_sd), 
+    geom_ribbon(aes(x = phase, ymin = value_mean_ci_lo, ymax = value_mean_ci_up),
                 data = plt2_df_long, alpha = 0.2, inherit.aes = TRUE) +
     geom_line(alpha = 1, lty = 5) +
-    labs(x = "Stride % cycle, t", 
-         y = "Knee location (t) mean +/- 1 SD",
+    labs(x = "Stance phase %, t", 
+         y = "Knee location (t) mean +/- 95% CI",
          color = "", fill = "") + 
     scale_x_continuous(breaks = seq(0, 100, by = 25)) +
     theme(legend.position = c(0.85, 0.75)) + 

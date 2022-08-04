@@ -22,6 +22,7 @@ library(cowplot)
 # to have here() pointing to the project directory path 
 here() 
 
+rescale_0_100 <- function(x) (x-min(x))/(max(x) - min(x)) * 100
 
 # Function to generate plot, sourced from Cui et al. (2021), slightly modified
 plot.FUI <- function(r, fit_tmp, name = NULL, axis_tmp){
@@ -33,6 +34,7 @@ plot.FUI <- function(r, fit_tmp, name = NULL, axis_tmp){
                              upper = fit_tmp$betaHat[r,] + 2*sqrt(diag(fit_tmp$betaHat.var[,,r])),
                              lower.joint = fit_tmp$betaHat[r,] - fit_tmp$qn[r]*sqrt(diag(fit_tmp$betaHat.var[,,r])),
                              upper.joint = fit_tmp$betaHat[r,] + fit_tmp$qn[r]*sqrt(diag(fit_tmp$betaHat.var[,,r])))
+  beta.hat.plt$s_stand <- rescale_0_100(beta.hat.plt$s)
   
   geom_text_label = paste0(var_name[r])
   y_vals <- c(beta.hat.plt$lower.joint, beta.hat.plt$upper.joint)
@@ -46,20 +48,20 @@ plot.FUI <- function(r, fit_tmp, name = NULL, axis_tmp){
           panel.grid.major = element_line(size = 0.2),
           # panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(),
-          panel.border = element_blank(),
+          panel.border = element_rect(colour = "grey70", fill = NA, size = 0.3),
           strip.background = element_rect(fill = alpha('white', 0.1), color = NA),
           strip.text = element_text(angle = 0, hjust = 0),
           plot.title = element_text(face = "bold")) + 
-    geom_ribbon(aes(x = s, ymax = upper.joint, ymin = lower.joint), data = beta.hat.plt, fill = "gray30", alpha = 0.2) +
-    geom_ribbon(aes(x = s, ymax = upper, ymin = lower), data = beta.hat.plt, fill = "gray10", alpha = 0.4) +
-    geom_line(aes(x = s, y = beta, color = "Estimate"), data = beta.hat.plt, alpha = 1, lty = 5) +
+    geom_ribbon(aes(x = s_stand, ymax = upper.joint, ymin = lower.joint), data = beta.hat.plt, fill = "gray30", alpha = 0.2) +
+    geom_ribbon(aes(x = s_stand, ymax = upper, ymin = lower), data = beta.hat.plt, fill = "gray10", alpha = 0.4) +
+    geom_line(aes(x = s_stand, y = beta, color = "Estimate"), data = beta.hat.plt, alpha = 1, lty = 5) +
     scale_colour_manual(name="", values=c("Estimate"="blue3")) +
     scale_y_continuous(labels=function(x) sprintf(paste0("%.", decimal[r], "f"), x)) +
-    scale_x_continuous(breaks = c(1, 24, 47, 70, 93)) + 
+    scale_x_continuous(breaks = seq(0, 100, by = 25)) + 
     annotate("text", x = geom_text_x, y = geom_text_y, label = geom_text_label, hjust = 0, size = 4)
   
   if(r == 1){
-    p.CI <- p.CI + labs(x = "Stride phase", y = expression(beta[0](s)), title = var_name[r]) +
+    p.CI <- p.CI + labs(x = "Stance phase %, t", y = expression(beta[0](s)), title = var_name[r]) +
       theme(legend.title=element_blank(),
             legend.position = c(0.05, 0.8),
             legend.justification = c("left", "top"),
@@ -68,7 +70,7 @@ plot.FUI <- function(r, fit_tmp, name = NULL, axis_tmp){
             legend.background = element_rect(fill=alpha('white', 0))) + 
       labs(title = paste0("Measrurement axis: ", axis_tmp))
   }else{
-    p.CI <- p.CI + labs(x = "Stride phase", y = bquote(paste(beta[.(r-1)], "(s)"))) +
+    p.CI <- p.CI + labs(x = "Stance phase %, t", y = bquote(paste(beta[.(r-1)], "(s)"))) +
       theme(legend.position = "none") +
       geom_hline(yintercept=0, color = "black", lwd=0.5, linetype = "dotted")
   }

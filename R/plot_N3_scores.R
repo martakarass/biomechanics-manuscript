@@ -248,7 +248,7 @@ for (i in 1 : 3){
 # ------------------------------------------------------------------------------
 
 plt_all <- plot_grid(plotlist = plot_list, ncol = 3, align = "hv", byrow = FALSE)
-path_tmp <- file.path(here(), "results_figures", paste0("scores_level_all.jpeg"))
+path_tmp <- file.path(here(), "results_figures", paste0("n3_scores_level_all.jpeg"))
 save_plot(filename = path_tmp, plot = plt_all, base_width = (3 * 2.2), base_height = (3 * 2.2))
 
 
